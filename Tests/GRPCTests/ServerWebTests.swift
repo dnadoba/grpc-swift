@@ -31,7 +31,7 @@ class ServerWebTests: EchoTestCaseBase {
     request.text = text
     var data = try! request.serializedData()
     // Add the gRPC prefix with the compression byte and the 4 length bytes.
-    for i in 0 ..< 4 {
+    for i in 0..<4 {
       data.insert(UInt8((data.count >> (i * 8)) & 0xFF), at: 0)
     }
     data.insert(UInt8(0), at: 0)
@@ -47,7 +47,7 @@ class ServerWebTests: EchoTestCaseBase {
     }
 
     // Add the gRPC prefix with the compression byte and the 4 length bytes.
-    for i in 0 ..< 4 {
+    for i in 0..<4 {
       data.insert(UInt8((data.count >> (i * 8)) & 0xFF), at: 0)
     }
     data.insert(UInt8(0x80), at: 0)
@@ -80,7 +80,9 @@ class ServerWebTests: EchoTestCaseBase {
 extension ServerWebTests {
   func testUnary() {
     let message = "hello, world!"
-    let expectedData = self.gRPCEncodedEchoRequest("Swift echo get: \(message)") + self
+    let expectedData =
+      self.gRPCEncodedEchoRequest("Swift echo get: \(message)")
+      + self
       .gRPCWebTrailers()
     let expectedResponse = expectedData.base64EncodedString()
 
@@ -132,9 +134,11 @@ extension ServerWebTests {
     completionHandlerExpectation.expectedFulfillmentCount = numberOfRequests
     completionHandlerExpectation.assertForOverFulfill = true
 
-    for i in 0 ..< numberOfRequests {
+    for i in 0..<numberOfRequests {
       let message = "foo \(i)"
-      let expectedData = self.gRPCEncodedEchoRequest("Swift echo get: \(message)") + self
+      let expectedData =
+        self.gRPCEncodedEchoRequest("Swift echo get: \(message)")
+        + self
         .gRPCWebTrailers()
       let expectedResponse = expectedData.base64EncodedString()
       self.sendOverHTTP1(rpcMethod: "Get", message: message) { data, error in

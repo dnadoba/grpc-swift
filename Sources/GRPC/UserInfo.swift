@@ -63,12 +63,11 @@ public struct UserInfo: CustomStringConvertible {
   /// Allows values to be set and retrieved in a type safe way.
   public subscript<Key: UserInfoKey>(key: Key.Type) -> Key.Value? {
     get {
-      if let anyValue = self.storage[AnyUserInfoKey(key)] {
-        // The types must line up here.
-        return (anyValue as! Key.Value)
-      } else {
+      guard let anyValue = self.storage[AnyUserInfoKey(key)] else {
         return nil
       }
+      // The types must line up here.
+      return (anyValue as! Key.Value)
     }
     set {
       self.storage[AnyUserInfoKey(key)] = newValue
@@ -76,9 +75,10 @@ public struct UserInfo: CustomStringConvertible {
   }
 
   public var description: String {
-    return "[" + self.storage.map { key, value in
-      "\(key): \(value)"
-    }.joined(separator: ", ") + "]"
+    return "["
+      + self.storage.map { key, value in
+        "\(key): \(value)"
+      }.joined(separator: ", ") + "]"
   }
 
   /// A `UserInfoKey` wrapper.

@@ -48,13 +48,7 @@ struct MessageEncodingHeaderValidator {
         )
       }
 
-      if configuration.enabledAlgorithms.contains(algorithm) {
-        return .supported(
-          algorithm: algorithm,
-          decompressionLimit: configuration.decompressionLimit,
-          acceptEncoding: []
-        )
-      } else {
+      guard configuration.enabledAlgorithms.contains(algorithm) else {
         // From: https://github.com/grpc/grpc/blob/master/doc/compression.md
         //
         //   Note that a peer MAY choose to not disclose all the encodings it supports. However, if
@@ -66,6 +60,11 @@ struct MessageEncodingHeaderValidator {
           acceptEncoding: configuration.enabledAlgorithms.map { $0.name } + CollectionOfOne(header)
         )
       }
+      return .supported(
+        algorithm: algorithm,
+        decompressionLimit: configuration.decompressionLimit,
+        acceptEncoding: []
+      )
 
     // Compression is disabled and the client sent a message encoding header. We don't support this
     // unless the header is "identity", which is no compression. Note this is different to the
@@ -78,11 +77,10 @@ struct MessageEncodingHeaderValidator {
         )
       }
 
-      if algorithm == .identity {
-        return .noCompression
-      } else {
+      guard algorithm == .identity else {
         return .unsupported(requestEncoding: header, acceptEncoding: [])
       }
+      return .noCompression
 
     // The client didn't send a message encoding header.
     case (_, .none):

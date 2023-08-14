@@ -102,7 +102,7 @@ internal final class ServerHandlerStateMachineTests: GRPCTestCase {
   func testHandleMessageWhenHandling() {
     var stateMachine = self.makeStateMachine(inState: .handling)
     // Messages are good, we can forward those while handling.
-    for _ in 0 ..< 10 {
+    for _ in 0..<10 {
       stateMachine.handleMessage().assertForward()
     }
   }

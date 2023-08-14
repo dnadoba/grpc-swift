@@ -69,7 +69,7 @@ final class GRPCWebToHTTP2StateMachineTests: GRPCTestCase {
     }
 
     let b1 = ByteBuffer(string: "hello")
-    for _ in 0 ..< 5 {
+    for _ in 0..<5 {
       state.processInbound(serverRequestPart: .body(b1), allocator: self.allocator).assertRead {
         $0.assertData {
           XCTAssertFalse($0.endStream)
@@ -174,7 +174,7 @@ final class GRPCWebToHTTP2StateMachineTests: GRPCTestCase {
   private func checkGRPCWebResponseData(from state: StateMachine, line: UInt = #line) {
     var state = state
 
-    for i in 0 ..< 10 {
+    for i in 0..<10 {
       let buffer = ByteBuffer(string: "foo-\(i)")
       state.processOutbound(
         framePayload: .data(.init(data: .byteBuffer(buffer))),
@@ -408,7 +408,9 @@ final class GRPCWebToHTTP2StateMachineTests: GRPCTestCase {
 
     // More writes should be told to fail their promise.
     state.processOutbound(
-      framePayload: .headers(.init(headers: .init())), promise: nil, allocator: self.allocator
+      framePayload: .headers(.init(headers: .init())),
+      promise: nil,
+      allocator: self.allocator
     ).assertCompletePromise { error in
       XCTAssertNotNil(error)
     }
@@ -423,10 +425,16 @@ final class GRPCWebToHTTP2StateMachineTests: GRPCTestCase {
   }
 
   func test_handleMultipleRequests() {
-    func sendRequestHead(_ state: inout StateMachine, contentType: ContentType) -> StateMachine
-      .Action {
+    func sendRequestHead(
+      _ state: inout StateMachine,
+      contentType: ContentType
+    )
+      -> StateMachine
+      .Action
+    {
       let requestHead = self.makeRequestHead(
-        uri: "/echo", headers: ["content-type": contentType.canonicalValue]
+        uri: "/echo",
+        headers: ["content-type": contentType.canonicalValue]
       )
       return state.processInbound(serverRequestPart: requestHead, allocator: self.allocator)
     }

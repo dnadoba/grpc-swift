@@ -20,11 +20,10 @@ import NIOSSL
 extension Error {
   internal var isNIOSSLUncleanShutdown: Bool {
     #if canImport(NIOSSL)
-    if let sslError = self as? NIOSSLError {
-      return sslError == .uncleanShutdown
-    } else {
+    guard let sslError = self as? NIOSSLError else {
       return false
     }
+    return sslError == .uncleanShutdown
     #else
     return false
     #endif

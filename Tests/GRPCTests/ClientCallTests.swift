@@ -209,7 +209,7 @@ class ClientCallTests: GRPCTestCase {
 
   func testWriteMessageOnStart() throws {
     // This test isn't deterministic so run a bunch of iterations.
-    for _ in 0 ..< 100 {
+    for _ in 0..<100 {
       let call = self.update()
       let promise = call.eventLoop.makePromise(of: Void.self)
       let finished = call.eventLoop.makePromise(of: Void.self)
@@ -220,7 +220,7 @@ class ClientCallTests: GRPCTestCase {
           .message(.with { $0.text = "foo" }, .init(compress: false, flush: false)),
           promise: promise
         )
-      } onError: { _ in // ignore errors
+      } onError: { _ in  // ignore errors
       } onResponsePart: {
         switch $0 {
         case .metadata, .message:

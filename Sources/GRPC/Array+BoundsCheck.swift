@@ -16,10 +16,9 @@
 
 extension Array {
   internal subscript(checked index: Index) -> Element? {
-    if self.indices.contains(index) {
-      return self[index]
-    } else {
+    guard self.indices.contains(index) else {
       return nil
     }
+    return self[index]
   }
 }

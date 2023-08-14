@@ -112,18 +112,20 @@ public final class Server: @unchecked Sendable {
       // No TLS configuration, no SSL context.
       sslContext = nil
     }
-    #endif // canImport(NIOSSL)
+    #endif  // canImport(NIOSSL)
 
     #if canImport(Network)
     if let tlsConfiguration = configuration.tlsConfiguration {
       if #available(OSX 10.14, iOS 12.0, tvOS 12.0, watchOS 6.0, *),
-         let transportServicesBootstrap = bootstrap as? NIOTSListenerBootstrap {
+        let transportServicesBootstrap = bootstrap as? NIOTSListenerBootstrap
+      {
         _ = transportServicesBootstrap.tlsOptions(from: tlsConfiguration)
       }
     }
-    #endif // canImport(Network)
+    #endif  // canImport(Network)
 
-    return bootstrap
+    return
+      bootstrap
       // Enable `SO_REUSEADDR` to avoid "address already in use" error.
       .serverChannelOption(
         ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR),
@@ -154,7 +156,7 @@ public final class Server: @unchecked Sendable {
 
             try sync.addHandler(sslHandler)
           }
-          #endif // canImport(NIOSSL)
+          #endif  // canImport(NIOSSL)
 
           // Configures the pipeline based on whether the connection uses TLS or not.
           try sync.addHandler(GRPCServerPipelineConfigurator(configuration: configuration))
@@ -165,7 +167,8 @@ public final class Server: @unchecked Sendable {
             hasTLS: configuration.tlsConfiguration != nil
           )
           if requiresZeroLengthWorkaround,
-             #available(OSX 10.14, iOS 12.0, tvOS 12.0, watchOS 6.0, *) {
+            #available(OSX 10.14, iOS 12.0, tvOS 12.0, watchOS 6.0, *)
+          {
             try sync.addHandler(NIOFilterEmptyWritesHandler())
           }
         } catch {
@@ -173,11 +176,10 @@ public final class Server: @unchecked Sendable {
         }
 
         // Run the debug initializer, if there is one.
-        if let debugAcceptedChannelInitializer = configuration.debugChannelInitializer {
-          return debugAcceptedChannelInitializer(channel)
-        } else {
+        guard let debugAcceptedChannelInitializer = configuration.debugChannelInitializer else {
           return channel.eventLoop.makeSucceededVoidFuture()
         }
+        return debugAcceptedChannelInitializer(channel)
       }
 
       // Enable TCP_NODELAY and SO_REUSEADDR for the accepted Channels
@@ -282,7 +284,8 @@ extension Server {
       set {
         self
           .serviceProvidersByName = Dictionary(
-            uniqueKeysWithValues: newValue
+            uniqueKeysWithValues:
+              newValue
               .map { ($0.serviceName, $0) }
           )
       }
@@ -303,7 +306,7 @@ extension Server {
         self.tlsConfiguration = newValue.map { GRPCTLSConfiguration(transforming: $0) }
       }
     }
-    #endif // canImport(NIOSSL)
+    #endif  // canImport(NIOSSL)
 
     public var tlsConfiguration: GRPCTLSConfiguration?
 
@@ -337,7 +340,7 @@ extension Server {
     /// 1 and 2^31-1 inclusive.
     public var httpTargetWindowSize = 8 * 1024 * 1024 {
       didSet {
-        self.httpTargetWindowSize = self.httpTargetWindowSize.clamped(to: 1 ... Int(Int32.max))
+        self.httpTargetWindowSize = self.httpTargetWindowSize.clamped(to: 1...Int(Int32.max))
       }
     }
 
@@ -352,7 +355,7 @@ extension Server {
     /// octets inclusive (the minimum and maximum allowable values - HTTP/2 RFC 7540 4.2).
     public var httpMaxFrameSize: Int = 16384 {
       didSet {
-        self.httpMaxFrameSize = self.httpMaxFrameSize.clamped(to: 16384 ... 16_777_215)
+        self.httpMaxFrameSize = self.httpMaxFrameSize.clamped(to: 16384...16_777_215)
       }
     }
 
@@ -424,7 +427,7 @@ extension Server {
       self.logger = logger
       self.debugChannelInitializer = debugChannelInitializer
     }
-    #endif // canImport(NIOSSL)
+    #endif  // canImport(NIOSSL)
 
     private init(
       eventLoopGroup: EventLoopGroup,
@@ -433,9 +436,11 @@ extension Server {
     ) {
       self.eventLoopGroup = eventLoopGroup
       self.target = target
-      self.serviceProvidersByName = Dictionary(uniqueKeysWithValues: serviceProviders.map {
-        ($0.serviceName, $0)
-      })
+      self.serviceProvidersByName = Dictionary(
+        uniqueKeysWithValues: serviceProviders.map {
+          ($0.serviceName, $0)
+        }
+      )
     }
 
     /// Make a new configuration using default values.

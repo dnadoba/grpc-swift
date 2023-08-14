@@ -51,8 +51,11 @@ internal struct ClientTransportFactory<Request, Response> {
     scheme: String,
     maximumReceiveMessageLength: Int,
     errorDelegate: ClientErrorDelegate?
-  ) -> ClientTransportFactory<Request, Response> where Request: SwiftProtobuf.Message,
-    Response: SwiftProtobuf.Message {
+  ) -> ClientTransportFactory<Request, Response>
+  where
+    Request: SwiftProtobuf.Message,
+    Response: SwiftProtobuf.Message
+  {
     let http2 = HTTP2ClientTransportFactory<Request, Response>(
       streamChannel: channel,
       scheme: scheme,
@@ -98,8 +101,11 @@ internal struct ClientTransportFactory<Request, Response> {
   @usableFromInline
   internal static func fake(
     _ fakeResponse: _FakeResponseStream<Request, Response>?
-  ) -> ClientTransportFactory<Request, Response> where Request: SwiftProtobuf.Message,
-    Response: SwiftProtobuf.Message {
+  ) -> ClientTransportFactory<Request, Response>
+  where
+    Request: SwiftProtobuf.Message,
+    Response: SwiftProtobuf.Message
+  {
     let factory = FakeClientTransportFactory(
       fakeResponse,
       requestSerializer: ProtobufSerializer(),
@@ -303,10 +309,13 @@ internal struct FakeClientTransportFactory<Request, Response> {
     requestDeserializer: RequestDeserializer,
     responseSerializer: ResponseSerializer,
     responseDeserializer: ResponseDeserializer
-  ) where RequestSerializer.Input == Request,
+  )
+  where
+    RequestSerializer.Input == Request,
     RequestDeserializer.Output == Request,
     ResponseSerializer.Input == Response,
-    ResponseDeserializer.Output == Response {
+    ResponseDeserializer.Output == Response
+  {
     self.fakeResponseStream = fakeResponseStream
     self.requestSerializer = AnySerializer(wrapping: requestSerializer)
     self.responseDeserializer = AnyDeserializer(wrapping: responseDeserializer)
@@ -346,18 +355,17 @@ internal struct FakeClientTransportFactory<Request, Response> {
 
   fileprivate func configure(_ transport: ClientTransport<Request, Response>) {
     transport.configure { handler in
-      if let fakeResponse = self.fakeResponseStream {
-        return fakeResponse.channel.pipeline.addHandlers(self.codec, handler).always { result in
-          switch result {
-          case .success:
-            fakeResponse.activate()
-          case .failure:
-            ()
-          }
-        }
-      } else {
+      guard let fakeResponse = self.fakeResponseStream else {
         return transport.callEventLoop
           .makeFailedFuture(GRPCStatus(code: .unavailable, message: nil))
+      }
+      return fakeResponse.channel.pipeline.addHandlers(self.codec, handler).always { result in
+        switch result {
+        case .success:
+          fakeResponse.activate()
+        case .failure:
+          ()
+        }
       }
     }
   }

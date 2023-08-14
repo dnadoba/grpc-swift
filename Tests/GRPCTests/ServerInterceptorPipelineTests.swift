@@ -123,7 +123,8 @@ class ServerInterceptorPipelineTests: GRPCTestCase {
 }
 
 internal class RecordingServerInterceptor<Request, Response>:
-  ServerInterceptor<Request, Response> {
+  ServerInterceptor<Request, Response>
+{
   var requestParts: [GRPCServerRequestPart<Request>] = []
   var responseParts: [GRPCServerResponsePart<Response>] = []
 

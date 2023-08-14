@@ -69,39 +69,34 @@ final class GeneratorOptions {
     for pair in GeneratorOptions.parseParameter(string: parameter) {
       switch pair.key {
       case "Visibility":
-        if let value = Visibility(rawValue: pair.value) {
-          self.visibility = value
-        } else {
+        guard let value = Visibility(rawValue: pair.value) else {
           throw GenerationError.invalidParameterValue(name: pair.key, value: pair.value)
         }
+        self.visibility = value
 
       case "Server":
-        if let value = Bool(pair.value) {
-          self.generateServer = value
-        } else {
+        guard let value = Bool(pair.value) else {
           throw GenerationError.invalidParameterValue(name: pair.key, value: pair.value)
         }
+        self.generateServer = value
 
       case "Client":
-        if let value = Bool(pair.value) {
-          self.generateClient = value
-        } else {
+        guard let value = Bool(pair.value) else {
           throw GenerationError.invalidParameterValue(name: pair.key, value: pair.value)
         }
+        self.generateClient = value
 
       case "TestClient":
-        if let value = Bool(pair.value) {
-          self.generateTestClient = value
-        } else {
+        guard let value = Bool(pair.value) else {
           throw GenerationError.invalidParameterValue(name: pair.key, value: pair.value)
         }
+        self.generateTestClient = value
 
       case "KeepMethodCasing":
-        if let value = Bool(pair.value) {
-          self.keepMethodCasing = value
-        } else {
+        guard let value = Bool(pair.value) else {
           throw GenerationError.invalidParameterValue(name: pair.key, value: pair.value)
         }
+        self.keepMethodCasing = value
 
       case "ProtoPathModuleMappings":
         if !pair.value.isEmpty {
@@ -116,32 +111,28 @@ final class GeneratorOptions {
         }
 
       case "FileNaming":
-        if let value = FileNaming(rawValue: pair.value) {
-          self.fileNaming = value
-        } else {
+        guard let value = FileNaming(rawValue: pair.value) else {
           throw GenerationError.invalidParameterValue(name: pair.key, value: pair.value)
         }
+        self.fileNaming = value
 
       case "ExtraModuleImports":
-        if !pair.value.isEmpty {
-          self.extraModuleImports.append(pair.value)
-        } else {
+        guard !pair.value.isEmpty else {
           throw GenerationError.invalidParameterValue(name: pair.key, value: pair.value)
         }
+        self.extraModuleImports.append(pair.value)
 
       case "GRPCModuleName":
-        if !pair.value.isEmpty {
-          self.gRPCModuleName = pair.value
-        } else {
+        guard !pair.value.isEmpty else {
           throw GenerationError.invalidParameterValue(name: pair.key, value: pair.value)
         }
+        self.gRPCModuleName = pair.value
 
       case "SwiftProtobufModuleName":
-        if !pair.value.isEmpty {
-          self.swiftProtobufModuleName = pair.value
-        } else {
+        guard !pair.value.isEmpty else {
           throw GenerationError.invalidParameterValue(name: pair.key, value: pair.value)
         }
+        self.swiftProtobufModuleName = pair.value
 
       default:
         throw GenerationError.unknownParameter(name: pair.key)

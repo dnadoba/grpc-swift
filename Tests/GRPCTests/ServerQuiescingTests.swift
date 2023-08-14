@@ -52,7 +52,7 @@ class ServerQuiescingTests: GRPCTestCase {
     }
 
     // Fire up a handful of client streaming RPCs, this will start the connection.
-    let rpcs = (0 ..< 5).map { _ in
+    let rpcs = (0..<5).map { _ in
       echo.collect()
     }
 

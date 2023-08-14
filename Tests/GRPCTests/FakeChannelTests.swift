@@ -108,7 +108,7 @@ class FakeChannelTests: GRPCTestCase {
     XCTAssertNoThrow(try call.sendMessage(.with { $0.text = "3" }).wait())
     XCTAssertNoThrow(try call.sendEnd().wait())
 
-    XCTAssertEqual(requests, (1 ... 3).map { number in .with { $0.text = "\(number)" } })
+    XCTAssertEqual(requests, (1...3).map { number in .with { $0.text = "\(number)" } })
 
     XCTAssertNoThrow(try response.sendMessage(.with { $0.text = "4" }))
     XCTAssertNoThrow(try response.sendMessage(.with { $0.text = "5" }))
@@ -118,7 +118,7 @@ class FakeChannelTests: GRPCTestCase {
     XCTAssertNoThrow(try response.sendEnd())
     XCTAssertTrue(isKnownUniquelyReferenced(&collector))
 
-    XCTAssertEqual(collector.responses, (4 ... 6).map { number in .with { $0.text = "\(number)" } })
+    XCTAssertEqual(collector.responses, (4...6).map { number in .with { $0.text = "\(number)" } })
     XCTAssertTrue(try call.status.map { $0.isOk }.wait())
   }
 

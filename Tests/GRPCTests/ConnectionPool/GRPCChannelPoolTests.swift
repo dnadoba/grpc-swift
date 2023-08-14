@@ -67,7 +67,8 @@ final class GRPCChannelPoolTests: GRPCTestCase {
       builder = Server.insecure(group: self.group)
     }
 
-    return builder
+    return
+      builder
       .withLogger(self.serverLogger)
       .withServiceProviders([EchoProvider()])
   }
@@ -123,7 +124,7 @@ final class GRPCChannelPoolTests: GRPCTestCase {
     var futures: [EventLoopFuture<GRPCStatus>] = []
     futures.reserveCapacity(count)
 
-    for i in 1 ... count {
+    for i in 1...count {
       let request = Echo_EchoRequest.with { $0.text = String(describing: i) }
       let get = self.echo.get(request)
       futures.append(get.status)
@@ -147,7 +148,7 @@ final class GRPCChannelPoolTests: GRPCTestCase {
     var futures: [EventLoopFuture<GRPCStatus>] = []
     futures.reserveCapacity(count)
 
-    for i in 1 ... count {
+    for i in 1...count {
       let request = Echo_EchoRequest.with { $0.text = String(describing: i) }
       let collect = self.echo.collect()
       collect.sendMessage(request, promise: nil)
@@ -175,7 +176,7 @@ final class GRPCChannelPoolTests: GRPCTestCase {
     var futures: [EventLoopFuture<GRPCStatus>] = []
     futures.reserveCapacity(count)
 
-    for i in 1 ... count {
+    for i in 1...count {
       let request = Echo_EchoRequest.with { $0.text = String(describing: i) }
       let expand = self.echo.expand(request) { _ in }
       futures.append(expand.status)
@@ -199,7 +200,7 @@ final class GRPCChannelPoolTests: GRPCTestCase {
     var futures: [EventLoopFuture<GRPCStatus>] = []
     futures.reserveCapacity(count)
 
-    for i in 1 ... count {
+    for i in 1...count {
       let request = Echo_EchoRequest.with { $0.text = String(describing: i) }
       let update = self.echo.update { _ in }
       update.sendMessage(request, promise: nil)
@@ -238,7 +239,7 @@ final class GRPCChannelPoolTests: GRPCTestCase {
     // Queue RPCs on each loop.
     for eventLoop in self.group.makeIterator() {
       let options = CallOptions(eventLoopPreference: .exact(eventLoop))
-      for i in 0 ..< 10 {
+      for i in 0..<10 {
         let get = self.echo.get(.with { $0.text = String(describing: i) }, callOptions: options)
         statuses.append(get.status)
       }
@@ -265,7 +266,7 @@ final class GRPCChannelPoolTests: GRPCTestCase {
     var echo = self.echo
     echo.defaultCallOptions.eventLoopPreference = .indifferent
 
-    let rpcs = (0 ..< 40).map { _ in echo.update { _ in } }
+    let rpcs = (0..<40).map { _ in echo.update { _ in } }
 
     let rpcsByEventLoop = Dictionary(grouping: rpcs, by: { ObjectIdentifier($0.eventLoop) })
     for rpcs in rpcsByEventLoop.values {
@@ -295,14 +296,14 @@ final class GRPCChannelPoolTests: GRPCTestCase {
     let options = CallOptions(eventLoopPreference: .exact(loop))
 
     // The first 10 will be waiting for the connection. The 11th should be failed immediately.
-    let rpcs = (1 ... 11).map { _ in
+    let rpcs = (1...11).map { _ in
       self.echo.get(.with { $0.text = "" }, callOptions: options)
     }
 
     XCTAssertEqual(try rpcs.last?.status.wait().code, .resourceExhausted)
 
     // If we express no event loop preference then we should not get the loaded loop.
-    let indifferentLoopRPCs = (1 ... 10).map {
+    let indifferentLoopRPCs = (1...10).map {
       _ in echo.get(.with { $0.text = "" })
     }
 
@@ -327,7 +328,7 @@ final class GRPCChannelPoolTests: GRPCTestCase {
 
     // MAX_CONCURRENT_STREAMS should be 100, we'll create 101 RPCs, 100 of which should not have to
     // wait because there's already an active connection.
-    let rpcs = (0 ..< 101).map { _ in self.echo.update { _ in }}
+    let rpcs = (0..<101).map { _ in self.echo.update { _ in } }
     // The first RPC should (obviously) complete first.
     rpcs.first!.status.whenComplete { _ in
       lock.withLock {
@@ -409,20 +410,19 @@ final class GRPCChannelPoolTests: GRPCTestCase {
       let status = try get.status.wait()
       XCTAssertEqual(status.code, .deadlineExceeded)
 
-      if let cause = status.cause, cause is NIOSSLError {
-        // What we expect.
-        seenError = true
-        break
-      } else {
+      guard let cause = status.cause, cause is NIOSSLError else {
         // Try again.
         continue
       }
+      // What we expect.
+      seenError = true
+      break
     }
     XCTAssert(seenError)
 
     // Now queue up a bunch of RPCs to fill up the waiter queue. We don't care about the outcome
     // of these. (They'll fail when we tear down the pool at the end of the test.)
-    _ = (0 ..< 10).map { i -> UnaryCall<Echo_EchoRequest, Echo_EchoResponse> in
+    _ = (0..<10).map { i -> UnaryCall<Echo_EchoRequest, Echo_EchoResponse> in
       let options = CallOptions(timeLimit: .deadline(.distantFuture))
       return self.echo.get(.with { $0.text = String(describing: i) }, callOptions: options)
     }
@@ -464,7 +464,7 @@ final class GRPCChannelPoolTests: GRPCTestCase {
     event = await iterator.next()
     XCTAssertEqual(event, .connectionUtilizationChanged(id, 0, 100))
 
-    let rpcs: [ClientStreamingCall<Echo_EchoRequest, Echo_EchoResponse>] = try (1 ... 10).map { _ in
+    let rpcs: [ClientStreamingCall<Echo_EchoRequest, Echo_EchoResponse>] = try (1...10).map { _ in
       let rpc = self.echo.collect()
       XCTAssertNoThrow(try rpc.sendMessage(.with { $0.text = "foo" }).wait())
       return rpc
@@ -526,7 +526,7 @@ final class GRPCChannelPoolTests: GRPCTestCase {
 
     // Start shutting the server down.
     let didShutdown = self.server!.initiateGracefulShutdown()
-    self.server = nil // Avoid shutting down again in tearDown
+    self.server = nil  // Avoid shutting down again in tearDown
 
     // Pause a moment so we know the client received the GOAWAY.
     let sleep = self.group.any().scheduleTask(in: .milliseconds(50)) {}
@@ -607,11 +607,11 @@ final class GRPCChannelPoolTests: GRPCTestCase {
 
     // We should be able to do a bunch of other RPCs without the state changing (we'll XCTFail if
     // a state change happens).
-    let rpcs: [EventLoopFuture<GRPCStatus>] = (0 ..< 20).map { i in
+    let rpcs: [EventLoopFuture<GRPCStatus>] = (0..<20).map { i in
       let rpc = self.echo.get(.with { $0.text = "\(i)" })
       return rpc.status
     }
     XCTAssertNoThrow(try EventLoopFuture.andAllSucceed(rpcs, on: self.group.any()).wait())
   }
 }
-#endif // canImport(NIOSSL)
+#endif  // canImport(NIOSSL)

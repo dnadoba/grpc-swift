@@ -144,11 +144,10 @@ struct Matcher<Value> {
   /// Matches if the value is not `nil`.
   static func notNil<V>(_ matcher: Matcher<V>? = nil) -> Matcher<V?> {
     return .init { actual in
-      if let actual = actual {
-        return matcher?.evaluate(actual) ?? .match
-      } else {
+      guard let actual = actual else {
         return .noMatch(actual: "nil", expected: "not nil")
       }
+      return matcher?.evaluate(actual) ?? .match
     }
   }
 
@@ -211,14 +210,13 @@ struct Matcher<Value> {
   /// Checks that the actual value is an instance of the given type.
   static func instanceOf<V, Expected>(_: Expected.Type) -> Matcher<V> {
     return .init { actual in
-      if actual is Expected {
-        return .match
-      } else {
+      guard actual is Expected else {
         return .noMatch(
           actual: String(describing: type(of: actual)) + " (\(actual))",
           expected: "value of type \(Expected.self)"
         )
       }
+      return .match
     }
   }
 
@@ -422,11 +420,10 @@ struct Matcher<Value> {
     return .init { actual in
       let headers = actual[canonicalForm: name]
 
-      if headers.isEmpty {
-        return .noMatch(actual: "does not contain '\(name)'", expected: "contains '\(name)'")
-      } else {
+      guard headers.isEmpty else {
         return values.map { Matcher.equalTo($0).evaluate(headers) } ?? .match
       }
+      return .noMatch(actual: "does not contain '\(name)'", expected: "contains '\(name)'")
     }
   }
 
@@ -458,7 +455,7 @@ struct Matcher<Value> {
 
         switch headersMatch {
         case .none,
-             .some(.match):
+          .some(.match):
           return endStream.map { Matcher.is($0).evaluate(payload.endStream) } ?? .match
         case .some(.noMatch):
           return headersMatch!
@@ -480,7 +477,7 @@ struct Matcher<Value> {
 
         switch (endStreamMatches, payload.data) {
         case let (.none, .byteBuffer(b)),
-             let (.some(.match), .byteBuffer(b)):
+          let (.some(.match), .byteBuffer(b)):
           return buffer.map { Matcher.is($0).evaluate(b) } ?? .match
 
         case (.some(.noMatch), .byteBuffer):
@@ -596,7 +593,8 @@ struct Matcher<Value> {
   }
 
   static func forwardHeadersThenRead()
-    -> Matcher<HTTP2ToRawGRPCStateMachine.PipelineConfiguredAction> {
+    -> Matcher<HTTP2ToRawGRPCStateMachine.PipelineConfiguredAction>
+  {
     return .init { actual in
       switch actual {
       case .forwardHeadersAndRead:
@@ -608,7 +606,8 @@ struct Matcher<Value> {
   }
 
   static func forwardMessageThenRead()
-    -> Matcher<HTTP2ToRawGRPCStateMachine.ReadNextMessageAction> {
+    -> Matcher<HTTP2ToRawGRPCStateMachine.ReadNextMessageAction>
+  {
     return .init { actual in
       switch actual {
       case .forwardMessageThenReadNextMessage:

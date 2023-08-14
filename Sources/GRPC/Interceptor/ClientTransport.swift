@@ -98,11 +98,10 @@ internal final class ClientTransport<Request, Response> {
 
   /// Our current state as logging metadata.
   private var stateForLogging: Logger.MetadataValue {
-    if self.state.mayBuffer {
-      return "\(self.state) (\(self.writeBuffer.count) parts buffered)"
-    } else {
+    guard self.state.mayBuffer else {
       return "\(self.state)"
     }
+    return "\(self.state) (\(self.writeBuffer.count) parts buffered)"
   }
 
   internal init(
@@ -181,9 +180,7 @@ internal final class ClientTransport<Request, Response> {
     self.callEventLoop.assertInEventLoop()
 
     // Do we already have a promise?
-    if let promise = self.channelPromise {
-      return promise.futureResult
-    } else {
+    guard let promise = self.channelPromise else {
       // Make and store the promise.
       let promise = self.callEventLoop.makePromise(of: Channel.self)
       self.channelPromise = promise
@@ -204,6 +201,7 @@ internal final class ClientTransport<Request, Response> {
 
       return promise.futureResult
     }
+    return promise.futureResult
   }
 }
 
@@ -785,7 +783,7 @@ extension ClientTransportState {
       return .propagateError
 
     case .activatingTransport,
-         .active:
+      .active:
       // We're either fully active or unbuffering. Forward an error, fail any writes and then close.
       self = .closing
       return .propagateErrorAndClose
@@ -855,10 +853,13 @@ extension ClientTransport {
     promise: EventLoopPromise<Void>?
   ) {
     self.callEventLoop.assertInEventLoop()
-    self.logger.trace("buffering request part", metadata: [
-      "request_part": "\(part.name)",
-      "call_state": self.stateForLogging,
-    ])
+    self.logger.trace(
+      "buffering request part",
+      metadata: [
+        "request_part": "\(part.name)",
+        "call_state": self.stateForLogging,
+      ]
+    )
     self.writeBuffer.append(.init(request: part, promise: promise))
   }
 
@@ -873,9 +874,12 @@ extension ClientTransport {
     // Save any flushing until we're done writing.
     var shouldFlush = false
 
-    self.logger.trace("unbuffering request parts", metadata: [
-      "request_parts": "\(self.writeBuffer.count)",
-    ])
+    self.logger.trace(
+      "unbuffering request parts",
+      metadata: [
+        "request_parts": "\(self.writeBuffer.count)"
+      ]
+    )
 
     // Why the double loop? A promise completed as a result of the flush may enqueue more writes,
     // or causes us to change state (i.e. we may have to close). If we didn't loop around then we
@@ -883,9 +887,12 @@ extension ClientTransport {
     while self.state.isUnbuffering, !self.writeBuffer.isEmpty {
       // Pull out as many writes as possible.
       while let write = self.writeBuffer.popFirst() {
-        self.logger.trace("unbuffering request part", metadata: [
-          "request_part": "\(write.request.name)",
-        ])
+        self.logger.trace(
+          "unbuffering request part",
+          metadata: [
+            "request_part": "\(write.request.name)"
+          ]
+        )
 
         if !shouldFlush {
           shouldFlush = self.shouldFlush(after: write.request)

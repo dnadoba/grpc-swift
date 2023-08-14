@@ -58,11 +58,13 @@ class GRPCStatusTests: GRPCTestCase {
     let cause = UnderlyingError()
     XCTAssertEqual(
       "internal error (13): unknown error processing request, cause: \(cause.description)",
-      String(describing: GRPCStatus(
-        code: .internalError,
-        message: "unknown error processing request",
-        cause: cause
-      ))
+      String(
+        describing: GRPCStatus(
+          code: .internalError,
+          message: "unknown error processing request",
+          cause: cause
+        )
+      )
     )
   }
 
@@ -73,11 +75,13 @@ class GRPCStatusTests: GRPCTestCase {
     let cause = UnderlyingError()
     XCTAssertEqual(
       "internal error (13), cause: \(cause.description)",
-      String(describing: GRPCStatus(
-        code: .internalError,
-        message: nil,
-        cause: cause
-      ))
+      String(
+        describing: GRPCStatus(
+          code: .internalError,
+          message: nil,
+          cause: cause
+        )
+      )
     )
   }
 
@@ -120,7 +124,7 @@ class GRPCStatusTests: GRPCTestCase {
   }
 
   func testStatusesWithNoMessageOrCauseShareBackingStorage() {
-    let validStatusCodes = (0 ... 16)
+    let validStatusCodes = (0...16)
     let statuses: [GRPCStatus] = validStatusCodes.map { code in
       // 0...16 are all valid, '!' is fine.
       let code = GRPCStatus.Code(rawValue: code)!

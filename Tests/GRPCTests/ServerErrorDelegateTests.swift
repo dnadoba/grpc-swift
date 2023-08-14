@@ -104,8 +104,7 @@ class ServerErrorDelegateTests: GRPCTestCase {
       .testTransformLibraryError_whenTransformingErrorToStatusAndMetadata(uri: "/echo.Echo/Expand")
   }
 
-  func testTransformLibraryError_whenTransformingErrorToStatusAndMetadata_bidirectionalStreaming(
-  ) throws {
+  func testTransformLibraryError_whenTransformingErrorToStatusAndMetadata_bidirectionalStreaming() throws {
     try self
       .testTransformLibraryError_whenTransformingErrorToStatusAndMetadata(uri: "/echo.Echo/Update")
   }

@@ -49,10 +49,13 @@ internal final class ServerInterceptorPipeline<Request, Response> {
 
   /// Called when a response part has traversed the interceptor pipeline.
   @usableFromInline
-  internal var _onResponsePart: Optional<(
-    GRPCServerResponsePart<Response>,
-    EventLoopPromise<Void>?
-  ) -> Void>
+  internal var _onResponsePart:
+    Optional<
+      (
+        GRPCServerResponsePart<Response>,
+        EventLoopPromise<Void>?
+      ) -> Void
+    >
 
   /// Called when a request part has traversed the interceptor pipeline.
   @usableFromInline
@@ -132,7 +135,7 @@ internal final class ServerInterceptorPipeline<Request, Response> {
     self._userContexts = []
     self._userContexts.reserveCapacity(interceptors.count)
 
-    for index in 0 ..< interceptors.count {
+    for index in 0..<interceptors.count {
       let context = ServerInterceptorContext(for: interceptors[index], atIndex: index, in: self)
       self._userContexts.append(context)
     }

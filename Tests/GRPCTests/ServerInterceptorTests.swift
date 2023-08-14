@@ -45,7 +45,8 @@ class ServerInterceptorTests: GRPCTestCase {
   }
 
   private func makeRecordingInterceptor()
-    -> RecordingServerInterceptor<Echo_EchoRequest, Echo_EchoResponse> {
+    -> RecordingServerInterceptor<Echo_EchoRequest, Echo_EchoResponse>
+  {
     return .init()
   }
 
@@ -225,14 +226,14 @@ class ExtraRequestPartEmitter: ServerInterceptor<Echo_EchoRequest, Echo_EchoResp
 
     switch (self.part, part) {
     case (.metadata, .metadata),
-         (.message, .message),
-         (.end, .end):
+      (.message, .message),
+      (.end, .end):
       count = self.count
     default:
       count = 1
     }
 
-    for _ in 0 ..< count {
+    for _ in 0..<count {
       context.receive(part)
     }
   }

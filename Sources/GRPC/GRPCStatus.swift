@@ -74,11 +74,10 @@ public struct GRPCStatus: Error, Sendable {
     fileprivate var cause: Optional<Error>
 
     fileprivate static func makeStorage(message: String?, cause: Error?) -> Storage {
-      if message == nil, cause == nil {
-        return Storage.none
-      } else {
+      guard message == nil, cause == nil else {
         return Storage(message: message, cause: cause)
       }
+      return Storage.none
     }
   }
 
@@ -156,7 +155,7 @@ extension GRPCStatus {
 
     public init?(rawValue: Int) {
       switch rawValue {
-      case 0 ... 16:
+      case 0...16:
         self._rawValue = UInt8(truncatingIfNeeded: rawValue)
       default:
         return nil

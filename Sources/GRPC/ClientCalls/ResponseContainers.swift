@@ -171,23 +171,21 @@ extension EventLoop {
   fileprivate func executeOrFlatSubmit<Result>(
     _ body: @escaping () -> EventLoopFuture<Result>
   ) -> EventLoopFuture<Result> {
-    if self.inEventLoop {
-      return body()
-    } else {
+    guard self.inEventLoop else {
       return self.flatSubmit {
         return body()
       }
     }
+    return body()
   }
 }
 
 extension Error {
   fileprivate func removingContext() -> Error {
-    if let withContext = self as? GRPCError.WithContext {
-      return withContext.error
-    } else {
+    guard let withContext = self as? GRPCError.WithContext else {
       return self
     }
+    return withContext.error
   }
 
   fileprivate func makeGRPCStatus() -> GRPCStatus {

@@ -32,7 +32,7 @@ class GRPCAsyncClientCallTests: GRPCTestCase {
   ])
 
   private static let OKTrailingMetadata = HPACKHeaders([
-    ("grpc-status", "0"),
+    ("grpc-status", "0")
   ])
 
   private func setUpServerAndChannel(
@@ -89,7 +89,8 @@ class GRPCAsyncClientCallTests: GRPCTestCase {
 
   func testAsyncClientStreamingCall() async throws {
     let channel = try self.setUpServerAndChannel()
-    let collect: GRPCAsyncClientStreamingCall<Echo_EchoRequest, Echo_EchoResponse> = channel
+    let collect: GRPCAsyncClientStreamingCall<Echo_EchoRequest, Echo_EchoResponse> =
+      channel
       .makeAsyncClientStreamingCall(
         path: "/echo.Echo/Collect",
         callOptions: .init()
@@ -108,7 +109,8 @@ class GRPCAsyncClientCallTests: GRPCTestCase {
 
   func testAsyncServerStreamingCall() async throws {
     let channel = try self.setUpServerAndChannel()
-    let expand: GRPCAsyncServerStreamingCall<Echo_EchoRequest, Echo_EchoResponse> = channel
+    let expand: GRPCAsyncServerStreamingCall<Echo_EchoRequest, Echo_EchoResponse> =
+      channel
       .makeAsyncServerStreamingCall(
         path: "/echo.Echo/Expand",
         request: .with { $0.text = "boyle jeffers holt" },
@@ -126,7 +128,8 @@ class GRPCAsyncClientCallTests: GRPCTestCase {
 
   func testAsyncBidirectionalStreamingCall() async throws {
     let channel = try self.setUpServerAndChannel()
-    let update: GRPCAsyncBidirectionalStreamingCall<Echo_EchoRequest, Echo_EchoResponse> = channel
+    let update: GRPCAsyncBidirectionalStreamingCall<Echo_EchoRequest, Echo_EchoResponse> =
+      channel
       .makeAsyncBidirectionalStreamingCall(
         path: "/echo.Echo/Update",
         callOptions: .init()
@@ -149,7 +152,8 @@ class GRPCAsyncClientCallTests: GRPCTestCase {
 
   func testAsyncBidirectionalStreamingCall_InterleavedRequestsAndResponses() async throws {
     let channel = try self.setUpServerAndChannel()
-    let update: GRPCAsyncBidirectionalStreamingCall<Echo_EchoRequest, Echo_EchoResponse> = channel
+    let update: GRPCAsyncBidirectionalStreamingCall<Echo_EchoRequest, Echo_EchoResponse> =
+      channel
       .makeAsyncBidirectionalStreamingCall(
         path: "/echo.Echo/Update",
         callOptions: .init()
@@ -173,7 +177,8 @@ class GRPCAsyncClientCallTests: GRPCTestCase {
 
   func testAsyncBidirectionalStreamingCall_ConcurrentTasks() async throws {
     let channel = try self.setUpServerAndChannel()
-    let update: GRPCAsyncBidirectionalStreamingCall<Echo_EchoRequest, Echo_EchoResponse> = channel
+    let update: GRPCAsyncBidirectionalStreamingCall<Echo_EchoRequest, Echo_EchoResponse> =
+      channel
       .makeAsyncBidirectionalStreamingCall(
         path: "/echo.Echo/Update",
         callOptions: .init()
@@ -340,7 +345,7 @@ private final class AsyncEchoProvider: Echo_EchoAsyncProvider {
   private func accept(context: GRPCAsyncServerCallContext) async {
     await context.acceptRPC(headers: self.headers)
     if self.sendTwice {
-      await context.acceptRPC(headers: self.headers) // Should be a no-op.
+      await context.acceptRPC(headers: self.headers)  // Should be a no-op.
     }
   }
 

@@ -60,7 +60,7 @@ internal final class CoalescingLengthPrefixedMessageWriterTests: GRPCTestCase {
     var writer = self.makeWriter()
     let messages = 100
 
-    for _ in 0 ..< messages {
+    for _ in 0..<messages {
       let promise = withPromise ? self.loop.makePromise(of: Void.self) : nil
       writer.append(buffer: .smallEnoughToCoalesce, compress: false, promise: promise)
     }
@@ -70,7 +70,7 @@ internal final class CoalescingLengthPrefixedMessageWriterTests: GRPCTestCase {
       var buffer = buffer
 
       // Read all the messages.
-      for _ in 0 ..< messages {
+      for _ in 0..<messages {
         let (compressed, length) = try XCTUnwrap(buffer.readMessageHeader())
         XCTAssertFalse(compressed)
         XCTAssertEqual(length, UInt32(ByteBuffer.smallEnoughToCoalesce.readableBytes))
@@ -142,7 +142,7 @@ internal final class CoalescingLengthPrefixedMessageWriterTests: GRPCTestCase {
     let (result1, _) = try XCTUnwrap(writer.next())
     try result1.assertValue { buffer in
       var buffer = buffer
-      for _ in 0 ..< 2 {
+      for _ in 0..<2 {
         let (compress, length) = try XCTUnwrap(buffer.readMessageHeader())
         XCTAssertFalse(compress)
         XCTAssertEqual(Int(length), ByteBuffer.smallEnoughToCoalesce.readableBytes)
@@ -212,10 +212,9 @@ extension ByteBuffer {
   )
 
   mutating func readMessageHeader() -> (Bool, UInt32)? {
-    if let (compressed, length) = self.readMultipleIntegers(as: (UInt8, UInt32).self) {
-      return (compressed != 0, length)
-    } else {
+    guard let (compressed, length) = self.readMultipleIntegers(as: (UInt8, UInt32).self) else {
       return nil
     }
+    return (compressed != 0, length)
   }
 }

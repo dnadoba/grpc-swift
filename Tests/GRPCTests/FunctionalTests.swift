@@ -32,7 +32,7 @@ class FunctionalTestsInsecureTransport: EchoTestCaseBase {
   }
 
   var lotsOfStrings: [String] {
-    return (0 ..< 500).map {
+    return (0..<500).map {
       String(describing: $0)
     }
   }
@@ -88,11 +88,12 @@ class FunctionalTestsInsecureTransport: EchoTestCaseBase {
     for lowerBound in stride(from: 0, to: numberOfRequests, by: batchSize) {
       let upperBound = min(lowerBound + batchSize, numberOfRequests)
       let numberOfCalls = upperBound - lowerBound
-      let responseExpectation = self
+      let responseExpectation =
+        self
         .makeResponseExpectation(expectedFulfillmentCount: numberOfCalls)
       let statusExpectation = self.makeStatusExpectation(expectedFulfillmentCount: numberOfCalls)
 
-      for i in lowerBound ..< upperBound {
+      for i in lowerBound..<upperBound {
         let request = Echo_EchoRequest(text: "foo \(i)")
         let response = Echo_EchoResponse(text: "Swift echo get: foo \(i)")
 
@@ -362,7 +363,7 @@ class FunctionalTestsMutualAuthentication: FunctionalTestsInsecureTransport {
     try super.testBidirectionalStreamingLotsOfMessagesPingPong()
   }
 }
-#endif // canImport(NIOSSL)
+#endif  // canImport(NIOSSL)
 
 // MARK: - Variants using NIO TS and Network.framework
 
@@ -564,4 +565,4 @@ class FunctionalTestsMutualAuthenticationNIOTS: FunctionalTestsInsecureTransport
     try super.testBidirectionalStreamingLotsOfMessagesPingPong()
   }
 }
-#endif // canImport(NIOSSL)
+#endif  // canImport(NIOSSL)

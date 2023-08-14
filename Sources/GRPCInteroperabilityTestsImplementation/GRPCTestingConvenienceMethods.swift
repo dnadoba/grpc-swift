@@ -115,7 +115,8 @@ extension Grpc_Testing_StreamingInputCallRequest: PayloadRequest {}
 extension HPACKHeaders {
   /// See `ServerFeatures.echoMetadata`.
   var shouldEchoMetadata: Bool {
-    return self.contains(name: "x-grpc-test-echo-initial") || self
-      .contains(name: "x-grpc-test-echo-trailing-bin")
+    return self.contains(name: "x-grpc-test-echo-initial")
+      || self
+        .contains(name: "x-grpc-test-echo-trailing-bin")
   }
 }

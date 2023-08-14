@@ -168,7 +168,7 @@ final class ConnectionPoolTests: GRPCTestCase {
       self.noChannelExpected($0, $1)
     }
 
-    let waiting = (0 ..< maxWaiters).map { _ in
+    let waiting = (0..<maxWaiters).map { _ in
       return pool.makeStream(deadline: .distantFuture, logger: self.logger.wrapped) {
         $0.eventLoop.makeSucceededVoidFuture()
       }
@@ -314,7 +314,7 @@ final class ConnectionPoolTests: GRPCTestCase {
 
     // Enqueue twice as many waiters as the connection will be able to handle.
     let maxConcurrentStreams = 10
-    let waiters = (0 ..< maxConcurrentStreams * 2).map { _ in
+    let waiters = (0..<maxConcurrentStreams * 2).map { _ in
       return pool.makeStream(deadline: .distantFuture, logger: self.logger.wrapped) {
         $0.eventLoop.makeSucceededVoidFuture()
       }
@@ -386,7 +386,7 @@ final class ConnectionPoolTests: GRPCTestCase {
 
     // Create a handful of streams.
     XCTAssertEqual(pool.sync.availableStreams, 9)
-    for _ in 0 ..< 5 {
+    for _ in 0..<5 {
       let notWaiting = pool.makeStream(deadline: .distantFuture, logger: self.logger.wrapped) {
         $0.eventLoop.makeSucceededVoidFuture()
       }
@@ -416,7 +416,7 @@ final class ConnectionPoolTests: GRPCTestCase {
     pool.initialize(connections: 1)
 
     // Reserve a bunch of streams.
-    let waiters = (0 ..< 10).map { _ in
+    let waiters = (0..<10).map { _ in
       return pool.makeStream(deadline: .distantFuture, logger: self.logger.wrapped) {
         $0.eventLoop.makeSucceededVoidFuture()
       }
@@ -794,7 +794,7 @@ final class ConnectionPoolTests: GRPCTestCase {
 
     // These streams should succeed when the new connection is up. We'll limit the connection to 10
     // streams when we bring it up.
-    let streams = (0 ..< 10).map { _ in
+    let streams = (0..<10).map { _ in
       pool.makeStream(deadline: .distantFuture, logger: self.logger.wrapped) {
         $0.eventLoop.makeSucceededVoidFuture()
       }
@@ -823,7 +823,7 @@ final class ConnectionPoolTests: GRPCTestCase {
     // out at a known point in time.
     let now = NIODeadline.now()
     self.eventLoop.advanceTime(to: now)
-    let waiters = (0 ..< 10).map { _ in
+    let waiters = (0..<10).map { _ in
       pool.makeStream(deadline: now + .seconds(1), logger: self.logger.wrapped) {
         $0.eventLoop.makeSucceededVoidFuture()
       }
@@ -973,7 +973,7 @@ final class ConnectionPoolTests: GRPCTestCase {
     XCTAssertNoThrow(try waiter.wait())
 
     // Okay, more utilization!
-    for n in 2 ... 8 {
+    for n in 2...8 {
       let w = pool.makeStream(deadline: .distantFuture, logger: self.logger.wrapped) {
         $0.eventLoop.makeSucceededVoidFuture()
       }
@@ -1014,7 +1014,7 @@ final class ConnectionPoolTests: GRPCTestCase {
     XCTAssertNoThrow(try w10.wait())
 
     // Close the streams.
-    for i in 1 ... 9 {
+    for i in 1...9 {
       controller.closeStreamInChannel(atIndex: 0)
       XCTAssertEqual(recorder.popFirst(), .connectionUtilizationChanged(firstConn, 9 - i, 10))
     }
@@ -1034,7 +1034,7 @@ final class ConnectionPoolTests: GRPCTestCase {
     XCTAssertNoThrow(try shutdownFuture.wait())
 
     // Two connections must be removed.
-    for _ in 0 ..< 2 {
+    for _ in 0..<2 {
       if let event = recorder.popFirst() {
         let id = event.id
         XCTAssertEqual(event, .connectionRemoved(id))
@@ -1321,8 +1321,8 @@ struct HTTP2FrameEncoder {
       }
 
     case .data, .headers, .priority,
-         .rstStream, .pushPromise, .ping,
-         .windowUpdate, .alternativeService, .origin:
+      .rstStream, .pushPromise, .ping,
+      .windowUpdate, .alternativeService, .origin:
       preconditionFailure("Frame type not supported: \(frame.payload)")
     }
 

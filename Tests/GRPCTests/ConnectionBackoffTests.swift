@@ -54,7 +54,7 @@ class ConnectionBackoffTests: GRPCTestCase {
         self.backoff.maximumBackoff
       )
       let halfJitterRange = self.backoff.jitter * unjittered
-      let jitteredRange = (unjittered - halfJitterRange) ... (unjittered + halfJitterRange)
+      let jitteredRange = (unjittered - halfJitterRange)...(unjittered + halfJitterRange)
       XCTAssert(jitteredRange.contains(timeoutAndBackoff.backoff))
     }
   }

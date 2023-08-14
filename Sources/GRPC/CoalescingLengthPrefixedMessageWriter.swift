@@ -139,18 +139,7 @@ internal struct CoalescingLengthPrefixedMessageWriter {
         }
       }
 
-      if messagesToCoalesce == 0 {
-        // Nothing to coalesce; this means the first element should be emitted with its header in
-        // a separate buffer. Note: the force unwrap is okay here: we early exit if `self.pending`
-        // is empty.
-        let pending = self.pending.pop()!
-
-        // Set the scratch buffer to just be a message header then store the message bytes.
-        self.scratch.clear(minimumCapacity: Self.metadataLength)
-        self.scratch.writeMultipleIntegers(UInt8(0), UInt32(pending.buffer.readableBytes))
-        self.state = .emittingLargeFrame(pending.buffer, pending.promise)
-        return (.success(self.scratch), nil)
-      } else {
+      guard messagesToCoalesce == 0 else {
         self.scratch.clear(minimumCapacity: requiredCapacity)
 
         // Drop and encode the messages.
@@ -165,6 +154,16 @@ internal struct CoalescingLengthPrefixedMessageWriter {
 
         return (.success(self.scratch), promise)
       }
+      // Nothing to coalesce; this means the first element should be emitted with its header in
+      // a separate buffer. Note: the force unwrap is okay here: we early exit if `self.pending`
+      // is empty.
+      let pending = self.pending.pop()!
+
+      // Set the scratch buffer to just be a message header then store the message bytes.
+      self.scratch.clear(minimumCapacity: Self.metadataLength)
+      self.scratch.writeMultipleIntegers(UInt8(0), UInt32(pending.buffer.readableBytes))
+      self.state = .emittingLargeFrame(pending.buffer, pending.promise)
+      return (.success(self.scratch), nil)
 
     case let .emittingLargeFrame(buffer, promise):
       // We just emitted the header, now emit the body.

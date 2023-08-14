@@ -81,20 +81,24 @@ internal final class ConnectionManager: @unchecked Sendable {
       self.backoffIterator = state.backoffIterator
       self.readyChannelMuxPromise = state.readyChannelMuxPromise
       self.scheduled = scheduled
-      self.reason = reason ?? GRPCStatus(
-        code: .unavailable,
-        message: "Unexpected connection drop"
-      )
+      self.reason =
+        reason
+        ?? GRPCStatus(
+          code: .unavailable,
+          message: "Unexpected connection drop"
+        )
     }
 
     init(from state: ConnectedState, scheduled: Scheduled<Void>) {
       self.backoffIterator = state.backoffIterator
       self.readyChannelMuxPromise = state.readyChannelMuxPromise
       self.scheduled = scheduled
-      self.reason = state.error ?? GRPCStatus(
-        code: .unavailable,
-        message: "Unexpected connection drop"
-      )
+      self.reason =
+        state.error
+        ?? GRPCStatus(
+          code: .unavailable,
+          message: "Unexpected connection drop"
+        )
     }
 
     init(
@@ -105,10 +109,12 @@ internal final class ConnectionManager: @unchecked Sendable {
       self.backoffIterator = backoffIterator
       self.readyChannelMuxPromise = state.channel.eventLoop.makePromise()
       self.scheduled = scheduled
-      self.reason = state.error ?? GRPCStatus(
-        code: .unavailable,
-        message: "Unexpected connection drop"
-      )
+      self.reason =
+        state.error
+        ?? GRPCStatus(
+          code: .unavailable,
+          message: "Unexpected connection drop"
+        )
     }
   }
 
@@ -375,13 +381,12 @@ internal final class ConnectionManager: @unchecked Sendable {
       }
     }
 
-    if self.eventLoop.inEventLoop {
-      return getHTTP2Multiplexer0()
-    } else {
+    guard self.eventLoop.inEventLoop else {
       return self.eventLoop.flatSubmit {
         getHTTP2Multiplexer0()
       }
     }
+    return getHTTP2Multiplexer0()
   }
 
   /// Returns a future for the multiplexer which succeeded when the channel is connected.
@@ -414,9 +419,12 @@ internal final class ConnectionManager: @unchecked Sendable {
       multiplexer = self.eventLoop.makeFailedFuture(state.reason)
     }
 
-    self.logger.debug("vending multiplexer future", metadata: [
-      "connectivity_state": "\(self.state.label)",
-    ])
+    self.logger.debug(
+      "vending multiplexer future",
+      metadata: [
+        "connectivity_state": "\(self.state.label)"
+      ]
+    )
 
     return multiplexer
   }
@@ -426,7 +434,8 @@ internal final class ConnectionManager: @unchecked Sendable {
   ///
   /// Note: if the state is 'transientFailure' or 'shutdown' then a failed future will be returned.
   private func getHTTP2MultiplexerOptimistic()
-    -> EventLoopFuture<NIOHTTP2Handler.StreamMultiplexer> {
+    -> EventLoopFuture<NIOHTTP2Handler.StreamMultiplexer>
+  {
     // `getHTTP2Multiplexer` makes sure we're on the event loop but let's just be sure.
     self.eventLoop.preconditionInEventLoop()
 
@@ -452,9 +461,12 @@ internal final class ConnectionManager: @unchecked Sendable {
       }
     }()
 
-    self.logger.debug("vending fast-failing multiplexer future", metadata: [
-      "connectivity_state": "\(self.state.label)",
-    ])
+    self.logger.debug(
+      "vending fast-failing multiplexer future",
+      metadata: [
+        "connectivity_state": "\(self.state.label)"
+      ]
+    )
     return muxFuture
   }
 
@@ -490,10 +502,13 @@ internal final class ConnectionManager: @unchecked Sendable {
   }
 
   private func _shutdown(mode: ShutdownMode, promise: EventLoopPromise<Void>) {
-    self.logger.debug("shutting down connection", metadata: [
-      "connectivity_state": "\(self.state.label)",
-      "shutdown.mode": "\(mode)",
-    ])
+    self.logger.debug(
+      "shutting down connection",
+      metadata: [
+        "connectivity_state": "\(self.state.label)",
+        "shutdown.mode": "\(mode)",
+      ]
+    )
 
     switch self.state {
     // We don't have a channel and we don't want one, easy!
@@ -639,9 +654,12 @@ internal final class ConnectionManager: @unchecked Sendable {
     // error is channel fatal, in which case we'll see channelInactive soon (acceptable), or it's not,
     // and future I/O will either fail fast or work. In either case, all we do is log this and move on.
     case .idle:
-      self.logger.warning("ignoring unexpected error in idle", metadata: [
-        MetadataKey.error: "\(error)",
-      ])
+      self.logger.warning(
+        "ignoring unexpected error in idle",
+        metadata: [
+          MetadataKey.error: "\(error)"
+        ]
+      )
 
     case .connecting:
       self.connectionFailed(withError: error)
@@ -663,9 +681,12 @@ internal final class ConnectionManager: @unchecked Sendable {
   /// The connecting channel became `active`. Must be called on the `EventLoop`.
   internal func channelActive(channel: Channel, multiplexer: NIOHTTP2Handler.StreamMultiplexer) {
     self.eventLoop.preconditionInEventLoop()
-    self.logger.debug("activating connection", metadata: [
-      "connectivity_state": "\(self.state.label)",
-    ])
+    self.logger.debug(
+      "activating connection",
+      metadata: [
+        "connectivity_state": "\(self.state.label)"
+      ]
+    )
 
     switch self.state {
     case let .connecting(connecting):
@@ -692,9 +713,12 @@ internal final class ConnectionManager: @unchecked Sendable {
   /// Must be called on the `EventLoop`.
   internal func channelInactive() {
     self.eventLoop.preconditionInEventLoop()
-    self.logger.debug("deactivating connection", metadata: [
-      "connectivity_state": "\(self.state.label)",
-    ])
+    self.logger.debug(
+      "deactivating connection",
+      metadata: [
+        "connectivity_state": "\(self.state.label)"
+      ]
+    )
 
     switch self.state {
     // We can hit inactive in connecting if we see channelInactive before channelActive; that's not
@@ -785,11 +809,13 @@ internal final class ConnectionManager: @unchecked Sendable {
         }
         self.logger.debug("scheduling connection attempt", metadata: ["delay": "0"])
         let backoffIterator = self.connectionBackoff?.makeIterator()
-        self.state = .transientFailure(TransientFailureState(
-          from: ready,
-          scheduled: scheduled,
-          backoffIterator: backoffIterator
-        ))
+        self.state = .transientFailure(
+          TransientFailureState(
+            from: ready,
+            scheduled: scheduled,
+            backoffIterator: backoffIterator
+          )
+        )
       }
 
     // This is fine: we expect the channel to become inactive after becoming idle.
@@ -810,9 +836,12 @@ internal final class ConnectionManager: @unchecked Sendable {
   /// called on the `EventLoop`.
   internal func ready() {
     self.eventLoop.preconditionInEventLoop()
-    self.logger.debug("connection ready", metadata: [
-      "connectivity_state": "\(self.state.label)",
-    ])
+    self.logger.debug(
+      "connection ready",
+      metadata: [
+        "connectivity_state": "\(self.state.label)"
+      ]
+    )
 
     switch self.state {
     case let .active(connected):
@@ -843,9 +872,12 @@ internal final class ConnectionManager: @unchecked Sendable {
   /// the `EventLoop`.
   internal func idle() {
     self.eventLoop.preconditionInEventLoop()
-    self.logger.debug("idling connection", metadata: [
-      "connectivity_state": "\(self.state.label)",
-    ])
+    self.logger.debug(
+      "idling connection",
+      metadata: [
+        "connectivity_state": "\(self.state.label)"
+      ]
+    )
 
     switch self.state {
     case let .active(state):
@@ -887,7 +919,8 @@ internal final class ConnectionManager: @unchecked Sendable {
   internal func maxConcurrentStreamsChanged(_ maxConcurrentStreams: Int) {
     self.eventLoop.assertInEventLoop()
     self.http2Delegate?.receivedSettingsMaxConcurrentStreams(
-      self, maxConcurrentStreams: maxConcurrentStreams
+      self,
+      maxConcurrentStreams: maxConcurrentStreams
     )
   }
 

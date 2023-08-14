@@ -262,7 +262,7 @@ class ClientInterceptorPipelineTests: GRPCTestCase {
 
         // Check the file and line, if expected.
         if let expectedFile = self.file, let expectedLine = self.line {
-          XCTAssertEqual("\(file)", "\(expectedFile)") // StaticString isn't Equatable
+          XCTAssertEqual("\(file)", "\(expectedFile)")  // StaticString isn't Equatable
           XCTAssertEqual(line, expectedLine)
         }
       }

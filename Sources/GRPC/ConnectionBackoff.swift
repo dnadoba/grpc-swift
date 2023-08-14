@@ -140,12 +140,11 @@ public class ConnectionBackoffIterator: IteratorProtocol {
       return nil
     }
 
-    if let initial = self.initialElement {
-      self.initialElement = nil
-      return initial
-    } else {
+    guard let initial = self.initialElement else {
       return self.makeNextElement()
     }
+    self.initialElement = nil
+    return initial
   }
 
   /// Produces the next element to return.
@@ -168,6 +167,6 @@ public class ConnectionBackoffIterator: IteratorProtocol {
   private func jittered(value: TimeInterval) -> TimeInterval {
     let lower = -self.connectionBackoff.jitter * value
     let upper = self.connectionBackoff.jitter * value
-    return value + TimeInterval.random(in: lower ... upper)
+    return value + TimeInterval.random(in: lower...upper)
   }
 }

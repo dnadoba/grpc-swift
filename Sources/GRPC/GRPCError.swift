@@ -116,11 +116,10 @@ public enum GRPCError {
     }
 
     public var description: String {
-      if let message = self.message {
-        return "Zlib error: \(self.code) \(message)"
-      } else {
+      guard let message = self.message else {
         return "Zlib error: \(self.code)"
       }
+      return "Zlib error: \(self.code) \(message)"
     }
 
     public func makeGRPCStatus() -> GRPCStatus {
@@ -198,11 +197,10 @@ public enum GRPCError {
     }
 
     public var description: String {
-      if let contentType = self.contentType {
-        return "Invalid 'content-type' header: '\(contentType)'"
-      } else {
+      guard let contentType = self.contentType else {
         return "Missing 'content-type' header"
       }
+      return "Invalid 'content-type' header: '\(contentType)'"
     }
 
     public func makeGRPCStatus() -> GRPCStatus {
@@ -220,11 +218,10 @@ public enum GRPCError {
     }
 
     public var description: String {
-      if let status = status {
-        return "Invalid HTTP response status: \(status)"
-      } else {
+      guard let status = status else {
         return "Missing HTTP ':status' header"
       }
+      return "Invalid HTTP response status: \(status)"
     }
 
     public func makeGRPCStatus() -> GRPCStatus {
@@ -343,11 +340,10 @@ extension GRPCStatus.Code {
   /// The gRPC status code associated with the given HTTP status code. This should only be used if
   /// the RPC did not return a 'grpc-status' trailer.
   internal init?(httpStatus codeString: String?) {
-    if let code = codeString.flatMap(Int.init) {
-      self.init(httpStatus: code)
-    } else {
+    guard let code = codeString.flatMap(Int.init) else {
       return nil
     }
+    self.init(httpStatus: code)
   }
 
   internal init?(httpStatus: Int) {

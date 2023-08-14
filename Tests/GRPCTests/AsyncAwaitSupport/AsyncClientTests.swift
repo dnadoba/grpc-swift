@@ -194,7 +194,7 @@ final class AsyncClientCancellationTests: GRPCTestCase {
 
   func testCancelClientStreamingClosesRequestStreamAndFailsResponseForWrappedCall() async throws {
     let echo = try self.startServerAndClient(service: NeverResolvingEchoProvider())
-    let requests = (0 ..< 10).map { i in
+    let requests = (0..<10).map { i in
       Echo_EchoRequest.with {
         $0.text = String(i)
       }
@@ -263,7 +263,7 @@ final class AsyncClientCancellationTests: GRPCTestCase {
 
   func testCancelBidiStreamingClosesRequestStreamAndResponseStreamForWrappedCall() async throws {
     let echo = try self.startServerAndClient(service: EchoProvider())
-    let requests = (0 ..< 10).map { i in
+    let requests = (0..<10).map { i in
       Echo_EchoRequest.with {
         $0.text = String(i)
       }

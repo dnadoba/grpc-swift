@@ -59,10 +59,9 @@ enum Types {
       typeName = Types.bidirectionalStreamingCall
     }
 
-    if withGRPCPrefix {
-      return "GRPC" + typeName
-    } else {
+    guard withGRPCPrefix else {
       return typeName
     }
+    return "GRPC" + typeName
   }
 }

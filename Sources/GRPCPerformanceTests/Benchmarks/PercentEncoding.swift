@@ -40,7 +40,7 @@ class PercentEncoding: Benchmark {
   func run() throws -> Int {
     var totalLength = 0
 
-    for _ in 0 ..< self.iterations {
+    for _ in 0..<self.iterations {
       var buffer = self.allocator.buffer(capacity: 0)
 
       let marshalled = GRPCStatusMessageMarshaller.marshall(self.message)!

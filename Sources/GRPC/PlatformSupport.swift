@@ -90,12 +90,11 @@ extension NetworkPreference {
     switch self.wrapped {
     case .best:
       #if canImport(Network)
-      if #available(OSX 10.14, iOS 12.0, tvOS 12.0, watchOS 6.0, *) {
-        return .networkFramework
-      } else {
+      guard #available(OSX 10.14, iOS 12.0, tvOS 12.0, watchOS 6.0, *) else {
         // Older platforms must use the POSIX loop.
         return .posix
       }
+      return .networkFramework
       #else
       return .posix
       #endif
@@ -174,7 +173,9 @@ public protocol ServerBootstrapProtocol {
 
   #if swift(>=5.7)
   @preconcurrency
-  func childChannelInitializer(_ handler: @escaping @Sendable (Channel) -> EventLoopFuture<Void>)
+  func childChannelInitializer(
+    _ handler: @escaping @Sendable (Channel) -> EventLoopFuture<Void>
+  )
     -> Self
   #else
   func childChannelInitializer(_ handler: @escaping (Channel) -> EventLoopFuture<Void>) -> Self
@@ -290,7 +291,8 @@ public enum PlatformSupport {
 
     #if canImport(Network)
     if #available(OSX 10.14, iOS 12.0, tvOS 12.0, watchOS 6.0, *),
-       let transportServicesBootstrap = bootstrap as? NIOTSConnectionBootstrap {
+      let transportServicesBootstrap = bootstrap as? NIOTSConnectionBootstrap
+    {
       return transportServicesBootstrap.tlsOptions(from: tlsConfigruation)
     }
     #endif
@@ -339,16 +341,14 @@ public enum PlatformSupport {
   /// See https://github.com/apple/swift-nio-transport-services/pull/72 for more.
   static func requiresZeroLengthWriteWorkaround(group: EventLoopGroup, hasTLS: Bool) -> Bool {
     #if canImport(Network)
-    if #available(OSX 10.14, iOS 12.0, tvOS 12.0, watchOS 6.0, *) {
-      if group is NIOTSEventLoopGroup || group is QoSEventLoop {
-        // We need the zero-length write workaround on NIOTS when not using TLS.
-        return !hasTLS
-      } else {
-        return false
-      }
-    } else {
+    guard #available(OSX 10.14, iOS 12.0, tvOS 12.0, watchOS 6.0, *) else {
       return false
     }
+    guard group is NIOTSEventLoopGroup || group is QoSEventLoop else {
+      return false
+    }
+    // We need the zero-length write workaround on NIOTS when not using TLS.
+    return !hasTLS
     #else
     return false
     #endif

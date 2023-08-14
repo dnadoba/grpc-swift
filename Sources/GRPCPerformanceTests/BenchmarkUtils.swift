@@ -60,7 +60,7 @@ func measureAndPrint(description: String, benchmark: Benchmark, spec: TestSpec) 
 ///   - repeats: the number of times to run the benchmark.
 func measure(_ description: String, benchmark: Benchmark, repeats: Int) -> BenchmarkResults {
   var milliseconds: [UInt64] = []
-  for _ in 0 ..< repeats {
+  for _ in 0..<repeats {
     do {
       try benchmark.setUp()
 

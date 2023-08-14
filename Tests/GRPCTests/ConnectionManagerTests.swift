@@ -116,7 +116,8 @@ extension ConnectionManagerTests {
       return channelPromise.futureResult
     }
 
-    let multiplexer: EventLoopFuture<NIOHTTP2Handler.StreamMultiplexer> = self
+    let multiplexer: EventLoopFuture<NIOHTTP2Handler.StreamMultiplexer> =
+      self
       .waitForStateChange(from: .idle, to: .connecting) {
         let channel = manager.getHTTP2Multiplexer()
         self.loop.run()
@@ -190,7 +191,8 @@ extension ConnectionManagerTests {
     }
 
     // Start the connection.
-    let readyChannelMux: EventLoopFuture<NIOHTTP2Handler.StreamMultiplexer> = self
+    let readyChannelMux: EventLoopFuture<NIOHTTP2Handler.StreamMultiplexer> =
+      self
       .waitForStateChange(from: .idle, to: .connecting) {
         let readyChannelMux = manager.getHTTP2Multiplexer()
         self.loop.run()
@@ -307,8 +309,10 @@ extension ConnectionManagerTests {
 
   func testChannelInactiveBeforeActiveWillReconnect() throws {
     var channels = [EmbeddedChannel(loop: self.loop), EmbeddedChannel(loop: self.loop)]
-    var channelPromises: [EventLoopPromise<Channel>] = [self.loop.makePromise(),
-                                                        self.loop.makePromise()]
+    var channelPromises: [EventLoopPromise<Channel>] = [
+      self.loop.makePromise(),
+      self.loop.makePromise(),
+    ]
     var channelFutures = Array(channelPromises.map { $0.futureResult })
 
     var configuration = self.defaultConfiguration
@@ -391,7 +395,8 @@ extension ConnectionManagerTests {
     }
 
     // Start the connection.
-    let readyChannelMux: EventLoopFuture<NIOHTTP2Handler.StreamMultiplexer> = self
+    let readyChannelMux: EventLoopFuture<NIOHTTP2Handler.StreamMultiplexer> =
+      self
       .waitForStateChange(from: .idle, to: .connecting) {
         let readyChannelMux = manager.getHTTP2Multiplexer()
         self.loop.run()
@@ -460,7 +465,8 @@ extension ConnectionManagerTests {
       return channelPromise.futureResult
     }
 
-    let readyChannelMux: EventLoopFuture<NIOHTTP2Handler.StreamMultiplexer> = self
+    let readyChannelMux: EventLoopFuture<NIOHTTP2Handler.StreamMultiplexer> =
+      self
       .waitForStateChange(from: .idle, to: .connecting) {
         let readyChannelMux = manager.getHTTP2Multiplexer()
         self.loop.run()
@@ -591,7 +597,8 @@ extension ConnectionManagerTests {
       return channelPromise.futureResult
     }
 
-    let readyChannelMux: EventLoopFuture<NIOHTTP2Handler.StreamMultiplexer> = self
+    let readyChannelMux: EventLoopFuture<NIOHTTP2Handler.StreamMultiplexer> =
+      self
       .waitForStateChange(from: .idle, to: .connecting) {
         let readyChannelMux = manager.getHTTP2Multiplexer()
         self.loop.run()
@@ -654,7 +661,8 @@ extension ConnectionManagerTests {
       return channelPromise.futureResult
     }
 
-    let readyChannelMux: EventLoopFuture<NIOHTTP2Handler.StreamMultiplexer> = self
+    let readyChannelMux: EventLoopFuture<NIOHTTP2Handler.StreamMultiplexer> =
+      self
       .waitForStateChange(from: .idle, to: .connecting) {
         let readyChannelMux = manager.getHTTP2Multiplexer()
         self.loop.run()
@@ -732,7 +740,8 @@ extension ConnectionManagerTests {
       return next
     }
 
-    let readyChannelMux: EventLoopFuture<NIOHTTP2Handler.StreamMultiplexer> = self
+    let readyChannelMux: EventLoopFuture<NIOHTTP2Handler.StreamMultiplexer> =
+      self
       .waitForStateChange(from: .idle, to: .connecting) {
         let readyChannelMux = manager.getHTTP2Multiplexer()
         self.loop.run()
@@ -811,7 +820,8 @@ extension ConnectionManagerTests {
       return next
     }
 
-    let readyChannelMux: EventLoopFuture<NIOHTTP2Handler.StreamMultiplexer> = self
+    let readyChannelMux: EventLoopFuture<NIOHTTP2Handler.StreamMultiplexer> =
+      self
       .waitForStateChange(from: .idle, to: .connecting) {
         let readyChannelMux = manager.getHTTP2Multiplexer()
         self.loop.run()
@@ -907,7 +917,8 @@ extension ConnectionManagerTests {
       return channelPromise.futureResult
     }
 
-    let readyChannelMux: EventLoopFuture<NIOHTTP2Handler.StreamMultiplexer> = self
+    let readyChannelMux: EventLoopFuture<NIOHTTP2Handler.StreamMultiplexer> =
+      self
       .waitForStateChange(from: .idle, to: .connecting) {
         let readyChannelMux = manager.getHTTP2Multiplexer()
         self.loop.run()
@@ -1061,7 +1072,8 @@ extension ConnectionManagerTests {
     }
 
     // Start the connection.
-    let readyChannelMux: EventLoopFuture<NIOHTTP2Handler.StreamMultiplexer> = self
+    let readyChannelMux: EventLoopFuture<NIOHTTP2Handler.StreamMultiplexer> =
+      self
       .waitForStateChange(
         from: .idle,
         to: .connecting
@@ -1415,7 +1427,8 @@ internal class RecordingConnectivityDelegate: ConnectivityStateDelegate {
     case .timedOut:
       XCTFail(
         "Timed out before verifying \(self.expectation.count) change(s)",
-        file: file, line: line
+        file: file,
+        line: line
       )
     }
   }

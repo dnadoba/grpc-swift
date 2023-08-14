@@ -26,11 +26,14 @@ class ConnectivityStateMonitorTests: GRPCTestCase {
     let recorder = RecordingConnectivityDelegate()
 
     recorder.expectChanges(3) { changes in
-      XCTAssertEqual(changes, [
-        Change(from: .idle, to: .connecting),
-        Change(from: .connecting, to: .ready),
-        Change(from: .ready, to: .shutdown),
-      ])
+      XCTAssertEqual(
+        changes,
+        [
+          Change(from: .idle, to: .connecting),
+          Change(from: .connecting, to: .ready),
+          Change(from: .ready, to: .shutdown),
+        ]
+      )
     }
 
     let monitor = ConnectivityStateMonitor(delegate: recorder, queue: nil)

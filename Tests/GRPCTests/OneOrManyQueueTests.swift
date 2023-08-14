@@ -35,7 +35,7 @@ internal final class OneOrManyQueueTests: GRPCTestCase {
   func testCountManyBacked() {
     var manyBacked = OneOrManyQueue<Int>.manyBacked
     XCTAssertEqual(manyBacked.count, 0)
-    for i in 1 ... 100 {
+    for i in 1...100 {
       manyBacked.append(1)
       XCTAssertEqual(manyBacked.count, i)
     }
@@ -89,7 +89,7 @@ internal final class OneOrManyQueueTests: GRPCTestCase {
     XCTAssertEqual(queue.startIndex, 0)
     XCTAssertEqual(queue.endIndex, 0)
 
-    for i in 1 ... 100 {
+    for i in 1...100 {
       queue.append(i)
       XCTAssertEqual(queue.startIndex, 0)
       XCTAssertEqual(queue.endIndex, i)
@@ -115,11 +115,11 @@ internal final class OneOrManyQueueTests: GRPCTestCase {
 
   func testSubscriptManyBacked() throws {
     var queue = OneOrManyQueue<Int>.manyBacked
-    for i in 0 ... 100 {
+    for i in 0...100 {
       queue.append(i)
     }
 
-    for i in 0 ... 100 {
+    for i in 0...100 {
       XCTAssertEqual(queue[i], i)
     }
   }

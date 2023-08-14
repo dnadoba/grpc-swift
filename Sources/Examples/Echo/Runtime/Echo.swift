@@ -104,7 +104,7 @@ struct Echo: AsyncParsableCommand {
         try! client.channel.close().wait()
       }
 
-      for _ in 0 ..< self.iterations {
+      for _ in 0..<self.iterations {
         await callRPC(self.rpc, using: client, message: self.message)
       }
     }
@@ -136,7 +136,7 @@ func startEchoServer(group: EventLoopGroup, port: Int, useTLS: Bool) async throw
     print("starting secure server")
     #else
     fatalError("'useTLS: true' passed to \(#function) but NIOSSL is not available")
-    #endif // canImport(NIOSSL)
+    #endif  // canImport(NIOSSL)
   } else {
     print("starting insecure server")
     builder = Server.insecure(group: group)
@@ -180,7 +180,7 @@ func makeClient(
       .withTLS(trustRoots: .certificates([caCert.certificate]))
     #else
     fatalError("'useTLS: true' passed to \(#function) but NIOSSL is not available")
-    #endif // canImport(NIOSSL)
+    #endif  // canImport(NIOSSL)
   } else {
     builder = ClientConnection.insecure(group: group)
   }

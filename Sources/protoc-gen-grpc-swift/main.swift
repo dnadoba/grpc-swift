@@ -91,17 +91,16 @@ func uniqueOutputFileName(
     fileDescriptor: fileDescriptor,
     fileNamingOption: fileNamingOption
   )
-  if let count = generatedFiles[defaultName] {
-    generatedFiles[defaultName] = count + 1
-    return outputFileName(
-      component: "\(count)." + component,
-      fileDescriptor: fileDescriptor,
-      fileNamingOption: fileNamingOption
-    )
-  } else {
+  guard let count = generatedFiles[defaultName] else {
     generatedFiles[defaultName] = 1
     return defaultName
   }
+  generatedFiles[defaultName] = count + 1
+  return outputFileName(
+    component: "\(count)." + component,
+    fileDescriptor: fileDescriptor,
+    fileNamingOption: fileNamingOption
+  )
 }
 
 func printVersion(args: [String]) {
@@ -137,7 +136,8 @@ func main(args: [String]) throws {
   // Only generate output for services.
   for name in request.fileToGenerate {
     if let fileDescriptor = descriptorSet.fileDescriptor(named: name),
-       !fileDescriptor.services.isEmpty {
+      !fileDescriptor.services.isEmpty
+    {
       let grpcFileName = uniqueOutputFileName(
         component: "grpc",
         fileDescriptor: fileDescriptor,

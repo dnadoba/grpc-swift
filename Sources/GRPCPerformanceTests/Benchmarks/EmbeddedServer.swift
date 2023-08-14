@@ -47,11 +47,13 @@ final class EmbeddedServerChildChannelBenchmark: Benchmark {
   }
 
   static func makeHeadersPayload(method: String) -> HTTP2Frame.FramePayload {
-    return .headers(.init(headers: [
-      ":path": "/echo.Echo/\(method)",
-      ":method": "POST",
-      "content-type": "application/grpc",
-    ]))
+    return .headers(
+      .init(headers: [
+        ":path": "/echo.Echo/\(method)",
+        ":method": "POST",
+        "content-type": "application/grpc",
+      ])
+    )
   }
 
   private var headersPayload: HTTP2Frame.FramePayload!
@@ -92,7 +94,7 @@ final class EmbeddedServerChildChannelBenchmark: Benchmark {
       // and the number of responses we want.
       var text = String()
       text.reserveCapacity((self.text.count + 1) * responsesPerRPC)
-      for _ in 0 ..< responsesPerRPC {
+      for _ in 0..<responsesPerRPC {
         text.append(self.text)
         text.append(" ")
       }
@@ -101,8 +103,8 @@ final class EmbeddedServerChildChannelBenchmark: Benchmark {
 
     let serialized = try Echo_EchoRequest.with { $0.text = requestText }.serializedData()
     buffer.reserveCapacity(5 + serialized.count)
-    buffer.writeInteger(UInt8(0)) // not compressed
-    buffer.writeInteger(UInt32(serialized.count)) // length
+    buffer.writeInteger(UInt8(0))  // not compressed
+    buffer.writeInteger(UInt32(serialized.count))  // length
     buffer.writeData(serialized)
 
     self.requestPayload = .data(.init(data: .byteBuffer(buffer), endStream: false))
@@ -127,10 +129,10 @@ final class EmbeddedServerChildChannelBenchmark: Benchmark {
 
   func run(rpcs: Int, requestsPerRPC: Int) throws -> Int {
     var messages = 0
-    for _ in 0 ..< rpcs {
+    for _ in 0..<rpcs {
       let channel = try self.makeChannel()
       try channel.writeInbound(self.headersPayload)
-      for _ in 0 ..< (requestsPerRPC - 1) {
+      for _ in 0..<(requestsPerRPC - 1) {
         messages += 1
         try channel.writeInbound(self.requestPayload)
       }

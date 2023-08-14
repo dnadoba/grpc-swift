@@ -20,11 +20,10 @@ extension EventLoopFuture where Value == Void {
     // We can ignore unclean shutdown since gRPC is self-terminated and therefore not prone to
     // truncation attacks.
     return self.flatMapErrorThrowing { error in
-      if error.isNIOSSLUncleanShutdown {
-        return ()
-      } else {
+      guard error.isNIOSSLUncleanShutdown else {
         throw error
       }
+      return ()
     }
   }
 }

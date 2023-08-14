@@ -69,7 +69,7 @@ public struct GRPCTLSConfiguration: Sendable {
     #endif
     }
   }
-  #endif // canImport(NIOSSL)
+  #endif  // canImport(NIOSSL)
 
   internal var isNetworkFrameworkTLSBackend: Bool {
     switch self.backend {
@@ -175,7 +175,7 @@ public struct GRPCTLSConfiguration: Sendable {
         configuration: deprecated.configuration,
         customVerificationCallback: deprecated.customVerificationCallback,
         hostnameOverride: deprecated.hostnameOverride,
-        requireALPN: false // Not currently supported.
+        requireALPN: false  // Not currently supported.
       )
     )
   }
@@ -209,7 +209,7 @@ public struct GRPCTLSConfiguration: Sendable {
     }
     return nil
   }
-  #endif // canImport(NIOSSL)
+  #endif  // canImport(NIOSSL)
 }
 
 // MARK: - NIO Backend
@@ -287,7 +287,7 @@ extension GRPCTLSConfiguration {
       configuration: configuration,
       customVerificationCallback: customVerificationCallback,
       hostnameOverride: hostnameOverride,
-      requireALPN: false // We don't currently support this.
+      requireALPN: false  // We don't currently support this.
     )
 
     return GRPCTLSConfiguration(nio: nioConfiguration)
@@ -481,7 +481,7 @@ extension GRPCTLSConfiguration {
     }
   }
 }
-#endif // canImport(NIOSSL)
+#endif  // canImport(NIOSSL)
 
 // MARK: - Network Backend
 
@@ -652,7 +652,7 @@ extension GRPCTLSConfiguration {
     #if canImport(NIOSSL)
     case .nio:
       preconditionFailure()
-    #endif // canImport(NIOSSL)
+    #endif  // canImport(NIOSSL)
     }
   }
 }
@@ -673,7 +673,7 @@ extension GRPCTLSConfiguration {
       // We're using NIOSSL with Network.framework; that's okay and permitted for backwards
       // compatibility.
       return bootstrap
-    #endif // canImport(NIOSSL)
+    #endif  // canImport(NIOSSL)
     }
   }
 
@@ -690,7 +690,7 @@ extension GRPCTLSConfiguration {
       // We're using NIOSSL with Network.framework; that's okay and permitted for backwards
       // compatibility.
       return bootstrap
-    #endif // canImport(NIOSSL)
+    #endif  // canImport(NIOSSL)
     }
   }
 }

@@ -195,10 +195,14 @@ class ClientCompressedUnary: InteroperabilityTest {
 
     // With compression expected and enabled.
     let options =
-      CallOptions(messageEncoding: .enabled(.init(
-        forRequests: .gzip,
-        decompressionLimit: .absolute(1024 * 1024)
-      )))
+      CallOptions(
+        messageEncoding: .enabled(
+          .init(
+            forRequests: .gzip,
+            decompressionLimit: .absolute(1024 * 1024)
+          )
+        )
+      )
     let compressed = client.unaryCall(compressedRequest, callOptions: options)
     try waitAndAssertEqual(compressed.response.map { $0.payload }, .zeros(count: 314_159))
     try waitAndAssertEqual(compressed.status.map { $0.code }, .ok)
@@ -269,10 +273,15 @@ class ServerCompressedUnary: InteroperabilityTest {
     }
 
     let options =
-      CallOptions(messageEncoding: .enabled(.responsesOnly(decompressionLimit: .absolute(
-        1024 *
-          1024
-      ))))
+      CallOptions(
+        messageEncoding: .enabled(
+          .responsesOnly(
+            decompressionLimit: .absolute(
+              1024 * 1024
+            )
+          )
+        )
+      )
     let compressed = client.unaryCall(compressedRequest, callOptions: options)
     // We can't verify that the compression bit was set, instead we verify that the encoding header
     // was sent by the server. This isn't quite the same since as it can still be set but the
@@ -438,10 +447,14 @@ class ClientCompressedStreaming: InteroperabilityTest {
     }
 
     let options =
-      CallOptions(messageEncoding: .enabled(.init(
-        forRequests: .gzip,
-        decompressionLimit: .ratio(10)
-      )))
+      CallOptions(
+        messageEncoding: .enabled(
+          .init(
+            forRequests: .gzip,
+            decompressionLimit: .ratio(10)
+          )
+        )
+      )
     let streaming = client.streamingInputCall(callOptions: options)
     streaming.sendMessage(probeRequest, compression: .enabled, promise: nil)
     streaming.sendMessage(secondMessage, compression: .disabled, promise: nil)
@@ -562,10 +575,15 @@ class ServerCompressedStreaming: InteroperabilityTest {
     }
 
     let options =
-      CallOptions(messageEncoding: .enabled(.responsesOnly(decompressionLimit: .absolute(
-        1024 *
-          1024
-      ))))
+      CallOptions(
+        messageEncoding: .enabled(
+          .responsesOnly(
+            decompressionLimit: .absolute(
+              1024 * 1024
+            )
+          )
+        )
+      )
     var payloads: [Grpc_Testing_Payload] = []
     let rpc = client.streamingOutputCall(request, callOptions: options) { response in
       payloads.append(response.payload)
@@ -752,7 +770,7 @@ class CustomMetadata: InteroperabilityTest {
   let trailingMetadataValue = Data([0xAB, 0xAB, 0xAB]).base64EncodedString()
 
   func checkMetadata<SpecificClientCall>(call: SpecificClientCall) throws
-    where SpecificClientCall: ClientCall {
+  where SpecificClientCall: ClientCall {
     let initialName = call.initialMetadata.map { $0[self.initialMetadataName] }
     try waitAndAssertEqual(initialName, [self.initialMetadataValue])
 
@@ -830,7 +848,7 @@ class StatusCodeAndMessage: InteroperabilityTest {
   let expectedMessage = "test status message"
 
   func checkStatus<SpecificClientCall>(call: SpecificClientCall) throws
-    where SpecificClientCall: ClientCall {
+  where SpecificClientCall: ClientCall {
     try waitAndAssertEqual(call.status.map { $0.code.rawValue }, self.expectedCode)
     try waitAndAssertEqual(call.status.map { $0.message }, self.expectedMessage)
   }

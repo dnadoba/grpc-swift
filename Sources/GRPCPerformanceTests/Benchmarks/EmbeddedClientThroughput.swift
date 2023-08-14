@@ -64,15 +64,16 @@ class EmbeddedClientThroughput: Benchmark {
 
     let serializedResponse = try response.serializedData()
     var buffer = ByteBufferAllocator().buffer(capacity: serializedResponse.count + 5)
-    buffer.writeInteger(UInt8(0)) // compression byte
+    buffer.writeInteger(UInt8(0))  // compression byte
     buffer.writeInteger(UInt32(serializedResponse.count))
     buffer.writeContiguousBytes(serializedResponse)
 
     self.responseDataChunks = []
     while buffer.readableBytes > 0,
-          let slice = buffer.readSlice(
-            length: min(maximumResponseFrameSize, buffer.readableBytes)
-          ) {
+      let slice = buffer.readSlice(
+        length: min(maximumResponseFrameSize, buffer.readableBytes)
+      )
+    {
       self.responseDataChunks.append(slice)
     }
   }
@@ -82,7 +83,7 @@ class EmbeddedClientThroughput: Benchmark {
   func run() throws -> Int {
     var messages = 0
 
-    for _ in 0 ..< self.requestCount {
+    for _ in 0..<self.requestCount {
       let channel = EmbeddedChannel()
 
       try channel._configureForEmbeddedThroughputTest(

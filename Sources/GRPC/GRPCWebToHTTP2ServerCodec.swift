@@ -242,14 +242,14 @@ extension GRPCWebToHTTP2ServerCodec.StateMachine.State {
       return self.processResponseData(payload, promise: promise)
 
     case .priority,
-         .rstStream,
-         .settings,
-         .pushPromise,
-         .ping,
-         .goAway,
-         .windowUpdate,
-         .alternativeService,
-         .origin:
+      .rstStream,
+      .settings,
+      .pushPromise,
+      .ping,
+      .goAway,
+      .windowUpdate,
+      .alternativeService,
+      .origin:
       preconditionFailure("Unsupported frame payload")
     }
   }
@@ -438,21 +438,7 @@ extension GRPCWebToHTTP2ServerCodec.StateMachine.State {
     allocator: ByteBufferAllocator,
     closeChannel: Bool
   ) -> GRPCWebToHTTP2ServerCodec.StateMachine.Action {
-    if var responseBuffers = responseBuffers {
-      let buffer = GRPCWebToHTTP2ServerCodec.encodeResponsesAndTrailers(
-        &responseBuffers,
-        trailers: trailers,
-        allocator: allocator
-      )
-      return .write(
-        .init(
-          part: .body(.byteBuffer(buffer)),
-          additionalPart: .end(nil),
-          promise: promise,
-          closeChannel: closeChannel
-        )
-      )
-    } else {
+    guard var responseBuffers = responseBuffers else {
       // No response buffer; plain gRPC Web. Trailers are encoded into the body as a regular
       // length-prefixed message.
       let buffer = GRPCWebToHTTP2ServerCodec.formatTrailers(trailers, allocator: allocator)
@@ -465,6 +451,19 @@ extension GRPCWebToHTTP2ServerCodec.StateMachine.State {
         )
       )
     }
+    let buffer = GRPCWebToHTTP2ServerCodec.encodeResponsesAndTrailers(
+      &responseBuffers,
+      trailers: trailers,
+      allocator: allocator
+    )
+    return .write(
+      .init(
+        part: .body(.byteBuffer(buffer)),
+        additionalPart: .end(nil),
+        promise: promise,
+        closeChannel: closeChannel
+      )
+    )
   }
 
   private mutating func processResponseTrailersOnly(
@@ -573,7 +572,7 @@ extension GRPCWebToHTTP2ServerCodec.StateMachine.State {
       preconditionFailure("Invalid state: haven't received request head")
 
     case let .fullyOpen(_, outbound),
-         let .clientClosedServerOpen(outbound):
+      let .clientClosedServerOpen(outbound):
       if outbound.responseHeadersSent {
         // Headers have been sent, these must be trailers, so end stream must be set.
         assert(payload.endStream)
@@ -600,10 +599,7 @@ extension GRPCWebToHTTP2ServerCodec.StateMachine.State {
     promise: EventLoopPromise<Void>?,
     state: inout GRPCWebToHTTP2ServerCodec.StateMachine.OutboundState
   ) -> GRPCWebToHTTP2ServerCodec.StateMachine.Action {
-    if state.responseBuffer == nil {
-      // Not gRPC Web Text; just write the body.
-      return .write(.init(part: .body(payload.data), promise: promise, closeChannel: false))
-    } else {
+    guard state.responseBuffer == nil else {
       switch payload.data {
       case let .byteBuffer(buffer):
         // '!' is fine, we checked above.
@@ -616,6 +612,8 @@ extension GRPCWebToHTTP2ServerCodec.StateMachine.State {
       // The response is buffered, we can consider it dealt with.
       return .completePromise(promise, .success(()))
     }
+    // Not gRPC Web Text; just write the body.
+    return .write(.init(part: .body(payload.data), promise: promise, closeChannel: false))
   }
 
   private mutating func processResponseData(
@@ -754,8 +752,9 @@ extension GRPCWebToHTTP2ServerCodec.StateMachine.InboundState {
     let action: GRPCWebToHTTP2ServerCodec.StateMachine.Action
 
     if bytesToRead > 0,
-       let base64Encoded = self.requestBuffer!.readString(length: bytesToRead),
-       let base64Decoded = Data(base64Encoded: base64Encoded) {
+      let base64Encoded = self.requestBuffer!.readString(length: bytesToRead),
+      let base64Decoded = Data(base64Encoded: base64Encoded)
+    {
       // Recycle the input buffer and restore the request buffer.
       buffer.clear()
       buffer.writeContiguousBytes(base64Decoded)

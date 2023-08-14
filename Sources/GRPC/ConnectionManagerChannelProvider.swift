@@ -44,7 +44,7 @@ internal struct DefaultChannelProvider: ConnectionManagerChannelProvider {
   enum TLSMode {
     #if canImport(NIOSSL)
     case configureWithNIOSSL(Result<NIOSSLContext, Error>)
-    #endif // canImport(NIOSSL)
+    #endif  // canImport(NIOSSL)
     case configureWithNetworkFramework
     case disabled
   }
@@ -115,7 +115,7 @@ internal struct DefaultChannelProvider: ConnectionManagerChannelProvider {
         // TLS is configured, and we aren't using a Network.framework TLS backend, so we must be
         // using NIOSSL, so we must be able to import it.
         fatalError()
-        #endif // canImport(NIOSSL)
+        #endif  // canImport(NIOSSL)
       }
     } else {
       tlsMode = .disabled
@@ -163,7 +163,8 @@ internal struct DefaultChannelProvider: ConnectionManagerChannelProvider {
       logger: logger
     )
 
-    bootstrap = bootstrap
+    bootstrap =
+      bootstrap
       .channelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
       .channelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
       .channelInitializer { channel in
@@ -185,12 +186,12 @@ internal struct DefaultChannelProvider: ConnectionManagerChannelProvider {
               customVerificationCallback: self.tlsConfiguration?.nioSSLCustomVerificationCallback,
               logger: logger
             )
-          #endif // canImport(NIOSSL)
+          #endif  // canImport(NIOSSL)
 
           // Network.framework TLS configuration is applied when creating the bootstrap so is a
           // no-op here.
           case .configureWithNetworkFramework,
-               .disabled:
+            .disabled:
             ()
           }
 
@@ -209,11 +210,10 @@ internal struct DefaultChannelProvider: ConnectionManagerChannelProvider {
         }
 
         // Run the debug initializer, if there is one.
-        if let debugInitializer = self.debugChannelInitializer {
-          return debugInitializer(channel)
-        } else {
+        guard let debugInitializer = self.debugChannelInitializer else {
           return channel.eventLoop.makeSucceededVoidFuture()
         }
+        return debugInitializer(channel)
       }
 
     if let connectTimeout = connectTimeout {

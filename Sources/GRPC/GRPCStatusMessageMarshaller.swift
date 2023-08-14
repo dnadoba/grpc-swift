@@ -58,8 +58,8 @@ extension GRPCStatusMessageMarshaller {
     for char in message.utf8 {
       switch char {
       // See: https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md#responses
-      case 0x20 ... 0x24,
-           0x26 ... 0x7E:
+      case 0x20...0x24,
+        0x26...0x7E:
         bytes.append(char)
 
       default:
@@ -77,8 +77,8 @@ extension GRPCStatusMessageMarshaller {
     var count = view.count
     for byte in view {
       switch byte {
-      case 0x20 ... 0x24,
-           0x26 ... 0x7E:
+      case 0x20...0x24,
+        0x26...0x7E:
         ()
 
       default:
@@ -96,7 +96,7 @@ extension GRPCStatusMessageMarshaller {
     assert(nibble & 0xF == nibble)
 
     switch nibble {
-    case 0 ... 9:
+    case 0...9:
       return nibble &+ UInt8(ascii: "0")
     default:
       return nibble &+ (UInt8(ascii: "A") &- 10)
@@ -131,8 +131,8 @@ extension GRPCStatusMessageMarshaller {
       switch byte {
       case UInt8(ascii: "%"):
         guard let (nextIndex, nextNextIndex) = utf8.nextTwoIndices(after: currentIndex),
-              let nextHex = fromHex(utf8[nextIndex]),
-              let nextNextHex = fromHex(utf8[nextNextIndex])
+          let nextHex = fromHex(utf8[nextIndex]),
+          let nextNextHex = fromHex(utf8[nextNextIndex])
         else {
           // If we can't decode the message, aborting and returning the encoded message is fine
           // according to the spec.
@@ -180,11 +180,11 @@ extension GRPCStatusMessageMarshaller {
 
   private static func fromHex(_ byte: UInt8) -> UInt8? {
     switch byte {
-    case UInt8(ascii: "0") ... UInt8(ascii: "9"):
+    case UInt8(ascii: "0")...UInt8(ascii: "9"):
       return byte &- UInt8(ascii: "0")
-    case UInt8(ascii: "A") ... UInt8(ascii: "Z"):
+    case UInt8(ascii: "A")...UInt8(ascii: "Z"):
       return byte &- (UInt8(ascii: "A") &- 10)
-    case UInt8(ascii: "a") ... UInt8(ascii: "z"):
+    case UInt8(ascii: "a")...UInt8(ascii: "z"):
       return byte &- (UInt8(ascii: "a") &- 10)
     default:
       return nil

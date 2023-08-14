@@ -319,11 +319,13 @@ class GRPCPingHandlerTests: GRPCTestCase {
     response = self.pingHandler.read(pingData: HTTP2PingData(withInteger: 1), ack: false)
     XCTAssertEqual(
       response,
-      .reply(HTTP2Frame.FramePayload.goAway(
-        lastStreamID: .rootStream,
-        errorCode: .enhanceYourCalm,
-        opaqueData: nil
-      ))
+      .reply(
+        HTTP2Frame.FramePayload.goAway(
+          lastStreamID: .rootStream,
+          errorCode: .enhanceYourCalm,
+          opaqueData: nil
+        )
+      )
     )
   }
 

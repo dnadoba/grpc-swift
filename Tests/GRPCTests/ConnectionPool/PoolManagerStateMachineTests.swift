@@ -102,7 +102,7 @@ class PoolManagerStateMachineTests: GRPCTestCase {
     let anotherLoop = EmbeddedEventLoop()
     let reservePreferredLoop = state.reserveStream(preferringPoolWithEventLoopID: anotherLoop.id)
     reservePreferredLoop.assertSuccess {
-      XCTAssert((0 ..< pools.count).contains($0.value))
+      XCTAssert((0..<pools.count).contains($0.value))
     }
   }
 
@@ -119,7 +119,7 @@ class PoolManagerStateMachineTests: GRPCTestCase {
 
     // Reserve some streams.
     for (index, loop) in group.loops.enumerated() {
-      for _ in 0 ..< 2 * index {
+      for _ in 0..<2 * index {
         state.reserveStream(preferringPoolWithEventLoopID: loop.id).assertSuccess()
       }
     }
@@ -335,7 +335,7 @@ private final class EmbeddedEventLoopGroup: EventLoopGroup {
   internal var index = 0
 
   internal init(loops: Int) {
-    self.loops = (0 ..< loops).map { _ in EmbeddedEventLoop() }
+    self.loops = (0..<loops).map { _ in EmbeddedEventLoop() }
   }
 
   internal func next() -> EventLoop {

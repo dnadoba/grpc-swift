@@ -113,11 +113,10 @@ internal final class WebCORSHandlerTests: XCTestCase {
   func testOptionsPreflightCustom() throws {
     struct Wrapper: GRPCCustomCORSAllowedOrigin {
       func check(origin: String) -> String? {
-        if origin == "foo" {
-          return "bar"
-        } else {
+        guard origin == "foo" else {
           return nil
         }
+        return "bar"
       }
     }
 

@@ -65,7 +65,8 @@ class GRPCStatusCodeTests: GRPCTestCase {
         .writeInbound(self.headersFramePayload(status: status))
     ) { error in
       guard let withContext = error as? GRPCError.WithContext,
-            let invalidHTTPStatus = withContext.error as? GRPCError.InvalidHTTPStatus else {
+        let invalidHTTPStatus = withContext.error as? GRPCError.InvalidHTTPStatus
+      else {
         XCTFail("Unexpected error: \(error)")
         return
       }

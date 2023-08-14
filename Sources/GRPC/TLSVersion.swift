@@ -84,12 +84,12 @@ extension GRPCTLSVersion {
       case .tlsProtocol13:
         self = .tlsv13
       case .dtlsProtocol1,
-           .dtlsProtocol12,
-           .sslProtocol2,
-           .sslProtocol3,
-           .sslProtocol3Only,
-           .sslProtocolAll,
-           .tlsProtocolMaxSupported:
+        .dtlsProtocol12,
+        .sslProtocol2,
+        .sslProtocol3,
+        .sslProtocol3Only,
+        .sslProtocolAll,
+        .tlsProtocolMaxSupported:
         return nil
       @unknown default:
         return nil

@@ -31,14 +31,13 @@ final class ZeroLengthWriteTests: GRPCTestCase {
     secure: Bool,
     debugInitializer: @escaping GRPCChannelInitializer
   ) -> ClientConnection.Builder {
-    if secure {
-      return ClientConnection.usingTLSBackedByNIOSSL(on: group)
-        .withTLS(trustRoots: .certificates([SampleCertificate.ca.certificate]))
-        .withDebugChannelInitializer(debugInitializer)
-    } else {
+    guard secure else {
       return ClientConnection.insecure(group: group)
         .withDebugChannelInitializer(debugInitializer)
     }
+    return ClientConnection.usingTLSBackedByNIOSSL(on: group)
+      .withTLS(trustRoots: .certificates([SampleCertificate.ca.certificate]))
+      .withDebugChannelInitializer(debugInitializer)
   }
 
   func serverBuilder(
@@ -46,17 +45,16 @@ final class ZeroLengthWriteTests: GRPCTestCase {
     secure: Bool,
     debugInitializer: @escaping (Channel) -> EventLoopFuture<Void>
   ) -> Server.Builder {
-    if secure {
-      return Server.usingTLSBackedByNIOSSL(
-        on: group,
-        certificateChain: [SampleCertificate.server.certificate],
-        privateKey: SamplePrivateKey.server
-      ).withTLS(trustRoots: .certificates([SampleCertificate.ca.certificate]))
-        .withDebugChannelInitializer(debugInitializer)
-    } else {
+    guard secure else {
       return Server.insecure(group: group)
         .withDebugChannelInitializer(debugInitializer)
     }
+    return Server.usingTLSBackedByNIOSSL(
+      on: group,
+      certificateChain: [SampleCertificate.server.certificate],
+      privateKey: SamplePrivateKey.server
+    ).withTLS(trustRoots: .certificates([SampleCertificate.ca.certificate]))
+      .withDebugChannelInitializer(debugInitializer)
   }
 
   func makeServer(
@@ -265,4 +263,4 @@ final class ZeroLengthWriteTests: GRPCTestCase {
   }
 }
 
-#endif // canImport(NIOSSL)
+#endif  // canImport(NIOSSL)

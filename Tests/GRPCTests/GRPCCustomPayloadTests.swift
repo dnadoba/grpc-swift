@@ -69,9 +69,9 @@ class GRPCCustomPayloadTests: GRPCTestCase {
 
     // Make and send some requests:
     let requests: [CustomPayload] = [
-      CustomPayload(message: "one", number: .random(in: Int64.min ..< Int64.max)),
-      CustomPayload(message: "two", number: .random(in: Int64.min ..< Int64.max)),
-      CustomPayload(message: "three", number: .random(in: Int64.min ..< Int64.max)),
+      CustomPayload(message: "one", number: .random(in: Int64.min..<Int64.max)),
+      CustomPayload(message: "two", number: .random(in: Int64.min..<Int64.max)),
+      CustomPayload(message: "three", number: .random(in: Int64.min..<Int64.max)),
     ]
     rpc.sendMessages(requests, promise: nil)
     rpc.sendEnd(promise: nil)
@@ -300,8 +300,9 @@ private struct CustomPayload: GRPCPayload, Equatable {
 
   init(serializedByteBuffer: inout ByteBuffer) throws {
     guard let messageLength = serializedByteBuffer.readInteger(as: UInt32.self),
-          let message = serializedByteBuffer.readString(length: Int(messageLength)),
-          let number = serializedByteBuffer.readInteger(as: Int64.self) else {
+      let message = serializedByteBuffer.readString(length: Int(messageLength)),
+      let number = serializedByteBuffer.readInteger(as: Int64.self)
+    else {
       throw GRPCError.DeserializationFailure()
     }
 

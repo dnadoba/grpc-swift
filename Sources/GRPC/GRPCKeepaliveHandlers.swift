@@ -121,12 +121,11 @@ struct PingHandler {
   mutating func streamCreated() -> Action {
     self.activeStreams += 1
 
-    if self.startedAt == nil {
-      self.startedAt = self.now()
-      return .schedulePing(delay: self.interval, timeout: self.timeout)
-    } else {
+    guard self.startedAt == nil else {
       return .none
     }
+    self.startedAt = self.now()
+    return .schedulePing(delay: self.interval, timeout: self.timeout)
   }
 
   mutating func streamClosed() -> Action {
@@ -135,11 +134,10 @@ struct PingHandler {
   }
 
   mutating func read(pingData: HTTP2PingData, ack: Bool) -> Action {
-    if ack {
-      return self.handlePong(pingData)
-    } else {
+    guard ack else {
       return self.handlePing(pingData)
     }
+    return self.handlePong(pingData)
   }
 
   private func handlePong(_ pingData: HTTP2PingData) -> Action {
@@ -156,38 +154,34 @@ struct PingHandler {
 
   private mutating func handlePing(_ pingData: HTTP2PingData) -> Action {
     // Do we support ping strikes (only servers support ping strikes)?
-    if let maximumPingStrikes = self.maximumPingStrikes {
-      // Is this a ping strike?
-      if self.isPingStrike {
-        self.pingStrikes += 1
-
-        // A maximum ping strike of zero indicates that we tolerate any number of strikes.
-        if maximumPingStrikes != 0, self.pingStrikes > maximumPingStrikes {
-          return .reply(PingHandler.goAwayFrame)
-        } else {
-          return .none
-        }
-      } else {
-        // This is a valid ping, reset our strike count and reply with a pong.
-        self.pingStrikes = 0
-        self.lastReceivedPingDate = self.now()
-        return .ack
-      }
-    } else {
+    guard let maximumPingStrikes = self.maximumPingStrikes else {
       // We don't support ping strikes. We'll just reply with a pong.
       //
       // Note: we don't need to update `pingStrikes` or `lastReceivedPingDate` as we don't
       // support ping strikes.
       return .ack
     }
+    // Is this a ping strike?
+    guard self.isPingStrike else {
+      // This is a valid ping, reset our strike count and reply with a pong.
+      self.pingStrikes = 0
+      self.lastReceivedPingDate = self.now()
+      return .ack
+    }
+    self.pingStrikes += 1
+
+    // A maximum ping strike of zero indicates that we tolerate any number of strikes.
+    guard maximumPingStrikes != 0, self.pingStrikes > maximumPingStrikes else {
+      return .none
+    }
+    return .reply(PingHandler.goAwayFrame)
   }
 
   mutating func pingFired() -> Action {
-    if self.shouldBlockPing {
-      return .none
-    } else {
+    guard self.shouldBlockPing else {
       return .reply(self.generatePingFrame(data: self.pingData))
     }
+    return .none
   }
 
   private mutating func generatePingFrame(
@@ -215,8 +209,8 @@ struct PingHandler {
       "Ping strikes are not supported but we're checking for one"
     )
     guard self.activeStreams == 0, self.permitWithoutCalls,
-          let lastReceivedPingDate = self.lastReceivedPingDate,
-          let minimumReceivedPingIntervalWithoutData = self.minimumReceivedPingIntervalWithoutData
+      let lastReceivedPingDate = self.lastReceivedPingDate,
+      let minimumReceivedPingIntervalWithoutData = self.minimumReceivedPingIntervalWithoutData
     else {
       return false
     }
@@ -239,7 +233,8 @@ struct PingHandler {
 
       // The time elapsed since the previous ping is less than the minimum required
       if let lastSentPingDate = self.lastSentPingDate,
-         self.now() - lastSentPingDate < self.minimumSentPingIntervalWithoutData {
+        self.now() - lastSentPingDate < self.minimumSentPingIntervalWithoutData
+      {
         return true
       }
 

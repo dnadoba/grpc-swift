@@ -21,11 +21,10 @@ internal func nameForPackageService(
   _ file: FileDescriptor,
   _ service: ServiceDescriptor
 ) -> String {
-  if !file.package.isEmpty {
-    return SwiftProtobufNamer().typePrefix(forFile: file) + service.name
-  } else {
+  guard !file.package.isEmpty else {
     return service.name
   }
+  return SwiftProtobufNamer().typePrefix(forFile: file) + service.name
 }
 
 internal func nameForPackageServiceMethod(
@@ -160,11 +159,10 @@ extension Generator {
   }
 
   internal var servicePath: String {
-    if !file.package.isEmpty {
-      return file.package + "." + service.name
-    } else {
+    guard !file.package.isEmpty else {
       return service.name
     }
+    return file.package + "." + service.name
   }
 
   internal var methodPath: String {

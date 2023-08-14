@@ -153,17 +153,16 @@ extension ConnectionPool {
     /// Returns the previous value for max concurrent streams if the connection was ready.
     @usableFromInline
     internal mutating func updateMaxConcurrentStreams(_ maxConcurrentStreams: Int) -> Int? {
-      if var availability = self._availability {
-        var oldValue = maxConcurrentStreams
-        swap(&availability.maxAvailable, &oldValue)
-        self._availability = availability
-        return oldValue
-      } else {
+      guard var availability = self._availability else {
         self._availability = self.manager.sync.multiplexer.map {
           StreamAvailability(multiplexer: $0, maxAvailable: maxConcurrentStreams)
         }
         return nil
       }
+      var oldValue = maxConcurrentStreams
+      swap(&availability.maxAvailable, &oldValue)
+      self._availability = availability
+      return oldValue
     }
 
     /// Mark the connection as unavailable returning the number of reserved streams.

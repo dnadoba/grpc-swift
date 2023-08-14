@@ -160,7 +160,7 @@ extension ClientQuiescingTests {
     self.assertConnectionEstablished()
 
     // Start a bunch of RPCs. Send a message on each to ensure it's open.
-    let rpcs: [ClientStreamingCall<Echo_EchoRequest, Echo_EchoResponse>] = (0 ..< 50).map { _ in
+    let rpcs: [ClientStreamingCall<Echo_EchoRequest, Echo_EchoResponse>] = (0..<50).map { _ in
       self.startRPC()
     }
 
@@ -250,7 +250,7 @@ extension ClientQuiescingTests {
     self.assertConnectionEstablished()
 
     // Start a bunch of RPCs. Send a message on each to ensure it's open.
-    let rpcs: [ClientStreamingCall<Echo_EchoRequest, Echo_EchoResponse>] = (0 ..< 5).map { _ in
+    let rpcs: [ClientStreamingCall<Echo_EchoRequest, Echo_EchoResponse>] = (0..<5).map { _ in
       self.startRPC(withTracking: false)
     }
 
@@ -351,7 +351,7 @@ extension ClientQuiescingTests {
 
     // We should have an established connection so we can load it up with 100 (i.e. http/2 max
     // concurrent streams) RPCs. These are all going to fail so we disable tracking.
-    let rpcs: [ClientStreamingCall<Echo_EchoRequest, Echo_EchoResponse>] = try (0 ..< 100)
+    let rpcs: [ClientStreamingCall<Echo_EchoRequest, Echo_EchoResponse>] = try (0..<100)
       .map { _ in
         let rpc = self.startRPC(withTracking: false)
         XCTAssertNoThrow(try rpc.sendMessage(.empty).wait())
@@ -359,7 +359,7 @@ extension ClientQuiescingTests {
       }
 
     // Now we'll create a handful of RPCs which will be waiters. We expect these to fail too.
-    let waitingRPCs = (0 ..< 50).map { _ in
+    let waitingRPCs = (0..<50).map { _ in
       self.startRPC(withTracking: false)
     }
 
@@ -384,7 +384,7 @@ extension ClientQuiescingTests {
     // Each of these RPCs will create a stream 'Channel' before we initiate the shutdown but the
     // 'HTTP2Handler' may not know about each stream before we initiate shutdown. This test is to
     // validate that we allow all of these calls to run normally.
-    let rpcsWhichShouldSucceed = (0 ..< 100).map { _ in
+    let rpcsWhichShouldSucceed = (0..<100).map { _ in
       self.startRPC()
     }
 
@@ -392,7 +392,7 @@ extension ClientQuiescingTests {
     let closeFuture = self.gracefulShutdown()
 
     // These should all fail because they were started after initiating shutdown.
-    let rpcsWhichShouldFail = (0 ..< 100).map { _ in
+    let rpcsWhichShouldFail = (0..<100).map { _ in
       self.startRPC(withTracking: false)
     }
 
@@ -431,8 +431,8 @@ extension ClientQuiescingTests {
       self.lock.withLock {
         switch (self.state, state) {
         case (.active, .active),
-             (.shutdownRequested, .shutdownRequested),
-             (.shutdown, .shutdown):
+          (.shutdownRequested, .shutdownRequested),
+          (.shutdown, .shutdown):
           ()
         default:
           XCTFail("Expected \(state) but state is \(self.state)", line: line)

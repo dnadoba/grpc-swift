@@ -27,7 +27,7 @@ class ArrayBoundsCheckingTests: GRPCTestCase {
   }
 
   func testBoundsCheckNonEmpty() {
-    let array: [Int] = Array(0 ..< 10)
+    let array: [Int] = Array(0..<10)
 
     var index = array.startIndex
     while index != array.endIndex {

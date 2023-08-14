@@ -34,7 +34,7 @@ public func makeInteroperabilityTestClientBuilder(
       .withTLS(serverHostnameOverride: "foo.test.google.fr")
     #else
     fatalError("'useTLS: true' passed to \(#function) but NIOSSL is not available")
-    #endif // canImport(NIOSSL)
+    #endif  // canImport(NIOSSL)
   } else {
     builder = ClientConnection.insecure(group: group)
   }

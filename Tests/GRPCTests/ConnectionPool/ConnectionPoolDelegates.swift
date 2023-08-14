@@ -108,13 +108,13 @@ final class EventRecordingConnectionPoolDelegate: GRPCConnectionPoolDelegate {
     var id: GRPCConnectionID {
       switch self {
       case let .connectionAdded(id),
-           let .startedConnecting(id),
-           let .connectFailed(id),
-           let .connectSucceeded(id, _),
-           let .connectionClosed(id),
-           let .connectionUtilizationChanged(id, _, _),
-           let .connectionQuiescing(id),
-           let .connectionRemoved(id):
+        let .startedConnecting(id),
+        let .connectFailed(id),
+        let .connectSucceeded(id, _),
+        let .connectionClosed(id),
+        let .connectionUtilizationChanged(id, _, _),
+        let .connectionQuiescing(id),
+        let .connectionRemoved(id):
         return id
       }
     }
@@ -197,7 +197,8 @@ final class AsyncEventStreamConnectionPoolDelegate: GRPCConnectionPoolDelegate {
     -> (
       AsyncEventStreamConnectionPoolDelegate,
       AsyncStream<EventRecordingConnectionPoolDelegate.Event>
-    ) {
+    )
+  {
     var continuation: AsyncStream<EventRecordingConnectionPoolDelegate.Event>.Continuation!
     let asyncStream = AsyncStream(EventRecordingConnectionPoolDelegate.Event.self) {
       continuation = $0

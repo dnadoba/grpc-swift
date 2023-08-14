@@ -216,8 +216,8 @@ extension GRPCChannelPool.Configuration {
 
 extension GRPCChannelPool.Configuration {
   public struct HTTP2: Hashable, Sendable {
-    private static let allowedTargetWindowSizes = (1 ... Int(Int32.max))
-    private static let allowedMaxFrameSizes = (1 << 14) ... ((1 << 24) - 1)
+    private static let allowedTargetWindowSizes = (1...Int(Int32.max))
+    private static let allowedMaxFrameSizes = (1 << 14)...((1 << 24) - 1)
 
     /// Default HTTP/2 configuration.
     public static let defaults = HTTP2()

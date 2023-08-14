@@ -93,11 +93,10 @@ struct WriteState {
   }
 
   mutating func next() -> (Result<ByteBuffer, MessageWriteError>, EventLoopPromise<Void>?)? {
-    if let next = self.writer.next() {
-      return (next.0.mapError { _ in .serializationFailed }, next.1)
-    } else {
+    guard let next = self.writer.next() else {
       return nil
     }
+    return (next.0.mapError { _ in .serializationFailed }, next.1)
   }
 }
 
@@ -130,7 +129,7 @@ struct PendingReadState {
       )
 
     case (.enabled, .none),
-         (.disabled, _):
+      (.disabled, _):
       reader = LengthPrefixedMessageReader()
     }
     return .reading(self.arity, reader)
@@ -161,7 +160,7 @@ enum ReadState {
       return .failure(.cardinalityViolation)
 
     case .reading(let readArity, var reader):
-      self = .notReading // Avoid CoWs
+      self = .notReading  // Avoid CoWs
       reader.append(buffer: &buffer)
       var messages: [ByteBuffer] = []
 
@@ -187,7 +186,7 @@ enum ReadState {
       switch (readArity, messages.count) {
       // Always allowed:
       case (.one, 0),
-           (.many, 0...):
+        (.many, 0...):
         self = .reading(readArity, reader)
         return .success(messages)
 
@@ -197,11 +196,10 @@ enum ReadState {
         self = .notReading
         // We shouldn't have any bytes leftover after reading a single message and we also should not
         // have partially read a message.
-        if reader.unprocessedBytes != 0 || reader.isReading {
-          return .failure(.leftOverBytes)
-        } else {
+        guard reader.unprocessedBytes != 0 || reader.isReading else {
           return .success(messages)
         }
+        return .failure(.leftOverBytes)
 
       // Anything else must be invalid.
       default:

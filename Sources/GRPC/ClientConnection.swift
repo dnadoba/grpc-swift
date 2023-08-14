@@ -393,7 +393,7 @@ extension ClientConnection {
         self.tlsConfiguration = newValue.map { .init(transforming: $0) }
       }
     }
-    #endif // canImport(NIOSSL)
+    #endif  // canImport(NIOSSL)
 
     /// TLS configuration for this connection. `nil` if TLS is not desired.
     public var tlsConfiguration: GRPCTLSConfiguration?
@@ -423,7 +423,7 @@ extension ClientConnection {
     /// 1 and 2^31-1 inclusive.
     public var httpTargetWindowSize = 8 * 1024 * 1024 {
       didSet {
-        self.httpTargetWindowSize = self.httpTargetWindowSize.clamped(to: 1 ... Int(Int32.max))
+        self.httpTargetWindowSize = self.httpTargetWindowSize.clamped(to: 1...Int(Int32.max))
       }
     }
 
@@ -431,7 +431,7 @@ extension ClientConnection {
     /// octets inclusive (the minimum and maximum allowable values - HTTP/2 RFC 7540 4.2).
     public var httpMaxFrameSize: Int = 16384 {
       didSet {
-        self.httpMaxFrameSize = self.httpMaxFrameSize.clamped(to: 16384 ... 16_777_215)
+        self.httpMaxFrameSize = self.httpMaxFrameSize.clamped(to: 16384...16_777_215)
       }
     }
 
@@ -520,7 +520,7 @@ extension ClientConnection {
       self.backgroundActivityLogger = backgroundActivityLogger
       self.debugChannelInitializer = debugChannelInitializer
     }
-    #endif // canImport(NIOSSL)
+    #endif  // canImport(NIOSSL)
 
     private init(eventLoopGroup: EventLoopGroup, target: ConnectionTarget) {
       self.eventLoopGroup = eventLoopGroup
@@ -595,7 +595,7 @@ extension ChannelPipeline.SynchronousOperations {
     try self.addHandler(TLSVerificationHandler(logger: logger))
   }
 }
-#endif // canImport(NIOSSL)
+#endif  // canImport(NIOSSL)
 
 extension ChannelPipeline.SynchronousOperations {
   internal func configureHTTP2AndGRPCHandlersForGRPCClient(
@@ -680,8 +680,7 @@ extension String {
     var ipv6Addr = in6_addr()
 
     return self.withCString { ptr in
-      inet_pton(AF_INET, ptr, &ipv4Addr) == 1 ||
-        inet_pton(AF_INET6, ptr, &ipv6Addr) == 1
+      inet_pton(AF_INET, ptr, &ipv4Addr) == 1 || inet_pton(AF_INET6, ptr, &ipv6Addr) == 1
     }
   }
 }

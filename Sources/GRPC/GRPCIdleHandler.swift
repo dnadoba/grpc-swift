@@ -99,7 +99,7 @@ internal final class GRPCIdleHandler: ChannelInboundHandler {
       case .client:
         self = .client(.deinitialized)
       case .server:
-        break // nothing to drop
+        break  // nothing to drop
       }
     }
   }
@@ -180,7 +180,8 @@ internal final class GRPCIdleHandler: ChannelInboundHandler {
 
     // Max concurrent streams changed.
     if let manager = self.mode.connectionManager,
-       let maxConcurrentStreams = operations.maxConcurrentStreamsChange {
+      let maxConcurrentStreams = operations.maxConcurrentStreamsChange
+    {
       manager.maxConcurrentStreamsChanged(maxConcurrentStreams)
     }
 
@@ -300,10 +301,13 @@ internal final class GRPCIdleHandler: ChannelInboundHandler {
       // Swallow this event.
     } else if case let .handshakeCompleted(negotiatedProtocol) = event as? TLSUserEvent {
       let tlsVersion = try? context.channel.getTLSVersionSync()
-      self.stateMachine.logger.debug("TLS handshake completed", metadata: [
-        "alpn": "\(negotiatedProtocol ?? "nil")",
-        "tls_version": "\(tlsVersion.map(String.init(describing:)) ?? "nil")",
-      ])
+      self.stateMachine.logger.debug(
+        "TLS handshake completed",
+        metadata: [
+          "alpn": "\(negotiatedProtocol ?? "nil")",
+          "tls_version": "\(tlsVersion.map(String.init(describing:)) ?? "nil")",
+        ]
+      )
       context.fireUserInboundEventTriggered(event)
     } else {
       context.fireUserInboundEventTriggered(event)
@@ -353,10 +357,13 @@ internal final class GRPCIdleHandler: ChannelInboundHandler {
 
     switch frame.payload {
     case let .goAway(lastStreamID, errorCode, _):
-      self.stateMachine.logger.debug("received GOAWAY frame", metadata: [
-        MetadataKey.h2GoAwayLastStreamID: "\(Int(lastStreamID))",
-        MetadataKey.h2GoAwayError: "\(errorCode.networkCode)",
-      ])
+      self.stateMachine.logger.debug(
+        "received GOAWAY frame",
+        metadata: [
+          MetadataKey.h2GoAwayLastStreamID: "\(Int(lastStreamID))",
+          MetadataKey.h2GoAwayError: "\(errorCode.networkCode)",
+        ]
+      )
       self.perform(operations: self.stateMachine.receiveGoAway())
     case let .settings(.settings(settings)):
       self.perform(operations: self.stateMachine.receiveSettings(settings))

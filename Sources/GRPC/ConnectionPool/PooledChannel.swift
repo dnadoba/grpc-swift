@@ -70,7 +70,7 @@ internal final class PooledChannel: GRPCChannel {
       // - Network.framework is not available
       // NIOSSL or Network.framework must be available as TLS is configured.
       fatalError()
-      #endif // canImport(NIOSSL)
+      #endif  // canImport(NIOSSL)
     } else {
       scheme = "http"
       tlsMode = .disabled

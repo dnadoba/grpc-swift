@@ -78,7 +78,7 @@ class Unary: ServerProvidingBenchmark {
     for lowerBound in stride(from: 0, to: self.requestCount, by: batchSize) {
       let upperBound = min(lowerBound + batchSize, self.requestCount)
 
-      let requests = (lowerBound ..< upperBound).map { _ in
+      let requests = (lowerBound..<upperBound).map { _ in
         client.get(Echo_EchoRequest.with { $0.text = self.requestText }).response
       }
 
@@ -115,7 +115,7 @@ class Bidi: Unary {
     let update = self.client.update { _ in }
 
     for _ in stride(from: 0, to: self.requestCount, by: self.batchSize) {
-      let batch = (0 ..< self.batchSize).map { _ in
+      let batch = (0..<self.batchSize).map { _ in
         Echo_EchoRequest.with { $0.text = self.requestText }
       }
       messages += batch.count

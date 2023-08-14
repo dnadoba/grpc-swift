@@ -24,8 +24,8 @@ import RouteGuideModel
 /// Loads the features from `route_guide_db.json`, assumed to be in the directory above this file.
 func loadFeatures() throws -> [Routeguide_Feature] {
   let url = URL(fileURLWithPath: #filePath)
-    .deletingLastPathComponent() // main.swift
-    .deletingLastPathComponent() // Server/
+    .deletingLastPathComponent()  // main.swift
+    .deletingLastPathComponent()  // Server/
     .appendingPathComponent("route_guide_db.json")
 
   let data = try Data(contentsOf: url)

@@ -41,8 +41,8 @@ internal final class RouteGuideProvider: Routeguide_RouteGuideAsyncProvider {
     responseStream: GRPCAsyncResponseStreamWriter<Routeguide_Feature>,
     context: GRPCAsyncServerCallContext
   ) async throws {
-    let longitudeRange = request.lo.longitude ... request.hi.longitude
-    let latitudeRange = request.lo.latitude ... request.hi.latitude
+    let longitudeRange = request.lo.longitude...request.hi.longitude
+    let latitudeRange = request.lo.latitude...request.hi.latitude
 
     for feature in self.features where !feature.name.isEmpty {
       if feature.location.isWithin(latitude: latitudeRange, longitude: longitudeRange) {
@@ -148,7 +148,8 @@ extension Routeguide_Point {
     let deltaLat = lat2 - lat1
     let deltaLon = lon2 - lon1
 
-    let a = sin(deltaLat / 2) * sin(deltaLat / 2)
+    let a =
+      sin(deltaLat / 2) * sin(deltaLat / 2)
       + cos(lat1) * cos(lat2) * sin(deltaLon / 2) * sin(deltaLon / 2)
     let c = 2 * atan2(sqrt(a), sqrt(1 - a))
 

@@ -105,13 +105,12 @@ extension Collection where Self == Self.SubSequence, Self.Element: Equatable {
     guard !self.isEmpty else {
       return nil
     }
-    if let separatorIndex = self.firstIndex(of: separator) {
-      let indexAfterSeparator = self.index(after: separatorIndex)
-      defer { self = self[indexAfterSeparator...] }
-      return self[..<separatorIndex]
-    } else {
+    guard let separatorIndex = self.firstIndex(of: separator) else {
       defer { self = self[self.endIndex...] }
       return self[...]
     }
+    let indexAfterSeparator = self.index(after: separatorIndex)
+    defer { self = self[indexAfterSeparator...] }
+    return self[..<separatorIndex]
   }
 }

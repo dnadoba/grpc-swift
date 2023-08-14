@@ -85,8 +85,7 @@ internal final class ClientInterceptorPipeline<Request, Response> {
   internal private(set) var _onCancel: ((EventLoopPromise<Void>?) -> Void)?
 
   @usableFromInline
-  internal private(set) var _onRequestPart:
-    ((GRPCClientRequestPart<Request>, EventLoopPromise<Void>?) -> Void)?
+  internal private(set) var _onRequestPart: ((GRPCClientRequestPart<Request>, EventLoopPromise<Void>?) -> Void)?
 
   @usableFromInline
   internal private(set) var _onResponsePart: ((GRPCClientResponsePart<Response>) -> Void)?
@@ -162,7 +161,7 @@ internal final class ClientInterceptorPipeline<Request, Response> {
     self._userContexts = []
     self._userContexts.reserveCapacity(interceptors.count)
 
-    for index in 0 ..< interceptors.count {
+    for index in 0..<interceptors.count {
       let context = ClientInterceptorContext(for: interceptors[index], atIndex: index, in: self)
       self._userContexts.append(context)
     }

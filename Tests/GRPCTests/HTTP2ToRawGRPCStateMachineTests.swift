@@ -344,10 +344,15 @@ class HTTP2ToRawGRPCStateMachineTests: GRPCTestCase {
     // metadata. Send back headers to test this.
     assertThat(action, .is(.configure()))
     let sendAction = machine.send(headers: [:])
-    assertThat(sendAction, .success(.contains(
-      "grpc-accept-encoding",
-      ["deflate", "identity", "gzip"]
-    )))
+    assertThat(
+      sendAction,
+      .success(
+        .contains(
+          "grpc-accept-encoding",
+          ["deflate", "identity", "gzip"]
+        )
+      )
+    )
   }
 
   func testReceiveHeadersWithIdentityCompressionWhenCompressionIsDisabled() {
@@ -620,7 +625,7 @@ class HTTP2ToRawGRPCStateMachineTests: GRPCTestCase {
       let buffer = ByteBuffer(repeating: 0, count: 1024)
 
       // We should be able to do this multiple times.
-      for _ in 0 ..< 5 {
+      for _ in 0..<5 {
         let action = machine.send(
           buffer: buffer,
           compress: false,
@@ -686,7 +691,7 @@ class HTTP2ToRawGRPCStateMachineTests: GRPCTestCase {
       machine.send(buffer: buffer, compress: false, promise: nil).assertSuccess()
 
       let (framedBuffer, promise) = try XCTUnwrap(machine.nextResponse())
-      XCTAssertNil(promise) // Didn't provide a promise.
+      XCTAssertNil(promise)  // Didn't provide a promise.
       framedBuffer.assertSuccess()
 
       // No more responses.
@@ -710,10 +715,13 @@ class HTTP2ToRawGRPCStateMachineTests: GRPCTestCase {
   // MARK: Send End
 
   func testSendEndWhenResponseStreamIsIdle() {
-    for (state, closed) in zip([
-      DesiredState.requestOpenResponseIdle(pipelineConfigured: true),
-      DesiredState.requestClosedResponseIdle(pipelineConfigured: true),
-    ], [false, true]) {
+    for (state, closed) in zip(
+      [
+        DesiredState.requestOpenResponseIdle(pipelineConfigured: true),
+        DesiredState.requestClosedResponseIdle(pipelineConfigured: true),
+      ],
+      [false, true]
+    ) {
       var machine = self.makeStateMachine(state: state)
       let action1 = machine.send(status: .ok, trailers: [:])
       // This'll be a trailers-only response.
@@ -730,10 +738,13 @@ class HTTP2ToRawGRPCStateMachineTests: GRPCTestCase {
   }
 
   func testSendEndWhenResponseStreamIsOpen() {
-    for (state, closed) in zip([
-      DesiredState.requestOpenResponseOpen,
-      DesiredState.requestClosedResponseOpen,
-    ], [false, true]) {
+    for (state, closed) in zip(
+      [
+        DesiredState.requestOpenResponseOpen,
+        DesiredState.requestClosedResponseOpen,
+      ],
+      [false, true]
+    ) {
       var machine = self.makeStateMachine(state: state)
       let action = machine.send(
         status: GRPCStatus(code: .ok, message: "ok"),

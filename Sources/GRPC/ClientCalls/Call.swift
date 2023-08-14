@@ -79,13 +79,12 @@ public final class Call<Request, Response> {
 
   /// Returns a future for the underlying `Channel`.
   internal var channel: EventLoopFuture<Channel> {
-    if self.eventLoop.inEventLoop {
-      return self._channel()
-    } else {
+    guard self.eventLoop.inEventLoop else {
       return self.eventLoop.flatSubmit {
         return self._channel()
       }
     }
+    return self._channel()
   }
 
   // Calls can't be constructed directly: users must make them using a `GRPCChannel`.
@@ -325,7 +324,7 @@ extension Call {
 
     switch (self.channelPromise, self._state) {
     case let (.some(promise), .idle),
-         let (.some(promise), .invoked):
+      let (.some(promise), .invoked):
       // We already have a promise, just use that.
       return promise.futureResult
 

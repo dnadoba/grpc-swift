@@ -23,8 +23,8 @@ import RouteGuideModel
 /// Loads the features from `route_guide_db.json`, assumed to be in the directory above this file.
 func loadFeatures() throws -> [Routeguide_Feature] {
   let url = URL(fileURLWithPath: #filePath)
-    .deletingLastPathComponent() // main.swift
-    .deletingLastPathComponent() // Client/
+    .deletingLastPathComponent()  // main.swift
+    .deletingLastPathComponent()  // Client/
     .appendingPathComponent("route_guide_db.json")
 
   let data = try Data(contentsOf: url)
@@ -131,14 +131,14 @@ extension RouteGuideExample {
     let recordRoute = self.routeGuide.makeRecordRouteCall()
 
     do {
-      for i in 1 ... featuresToVisit {
+      for i in 1...featuresToVisit {
         if let feature = features.randomElement() {
           let point = feature.location
           print("Visiting point #\(i) at \(point)")
           try await recordRoute.requestStream.send(point)
 
           // Sleep for 0.2s ... 1.0s before sending the next point.
-          try await Task.sleep(nanoseconds: UInt64.random(in: UInt64(2e8) ... UInt64(1e9)))
+          try await Task.sleep(nanoseconds: UInt64.random(in: UInt64(2e8)...UInt64(1e9)))
         }
       }
 
@@ -146,8 +146,8 @@ extension RouteGuideExample {
       let summary = try await recordRoute.response
 
       print(
-        "Finished trip with \(summary.pointCount) points. Passed \(summary.featureCount) features. " +
-          "Travelled \(summary.distance) meters. It took \(summary.elapsedTime) seconds."
+        "Finished trip with \(summary.pointCount) points. Passed \(summary.featureCount) features. "
+          + "Travelled \(summary.distance) meters. It took \(summary.elapsedTime) seconds."
       )
     } catch {
       print("RecordRoute Failed: \(error)")
@@ -184,7 +184,7 @@ extension RouteGuideExample {
             print("Sending message '\(note.message)' at \(note.location)")
             try await routeChat.requestStream.send(note)
             // Sleep for 0.2s ... 1.0s before sending the next note.
-            try await Task.sleep(nanoseconds: UInt64.random(in: UInt64(2e8) ... UInt64(1e9)))
+            try await Task.sleep(nanoseconds: UInt64.random(in: UInt64(2e8)...UInt64(1e9)))
           }
 
           routeChat.requestStream.finish()
